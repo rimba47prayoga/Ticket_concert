@@ -1,0 +1,150 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <Name>Ticket_concert</Name>
+    <RootNamespace>Ticket_concert</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>3a867efe-9da1-4d03-b1b8-3c086bfaf31b</ProjectGuid>
+    <ProjectHome>.</ProjectHome>
+    <ProjectTypeGuids>{5F0BE9CA-D677-4A4D-8806-6076C0FAAD37};{349c5851-65df-11da-9384-00065b846f21};{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <StartupFile>manage.py</StartupFile>
+    <SearchPath>
+    </SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <LaunchProvider>Django launcher</LaunchProvider>
+    <DjangoSettingsModule>Ticket_concert.settings</DjangoSettingsModule>
+    <OutputPath>.</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="manage.py" />
+    <Compile Include="music\admin.py" />
+    <Compile Include="music\apps.py" />
+    <Compile Include="music\migrations\__init__.py" />
+    <Compile Include="music\models.py" />
+    <Compile Include="music\tests.py" />
+    <Compile Include="music\views.py" />
+    <Compile Include="music\__init__.py" />
+    <Compile Include="Ticket_concert\__init__.py" />
+    <Compile Include="Ticket_concert\settings.py" />
+    <Compile Include="Ticket_concert\urls.py" />
+    <Compile Include="Ticket_concert\wsgi.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="music\static\css\bootstrap.css" />
+    <Content Include="music\static\css\flexslider.css" />
+    <Content Include="music\static\css\popuo-box.css" />
+    <Content Include="music\static\css\style.css" />
+    <Content Include="music\static\fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="music\static\fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="music\static\fonts\glyphicons-halflings-regular.woff2" />
+    <Content Include="music\static\images\1.jpg" />
+    <Content Include="music\static\images\2.jpg" />
+    <Content Include="music\static\images\3.jpg" />
+    <Content Include="music\static\images\a1.jpg" />
+    <Content Include="music\static\images\a2.jpg" />
+    <Content Include="music\static\images\a3.jpg" />
+    <Content Include="music\static\images\arrow1.png" />
+    <Content Include="music\static\images\arrows.png" />
+    <Content Include="music\static\images\banner2.jpg" />
+    <Content Include="music\static\images\cart.png" />
+    <Content Include="music\static\images\close.png" />
+    <Content Include="music\static\images\f.jpg" />
+    <Content Include="music\static\images\f2.jpg" />
+    <Content Include="music\static\images\f3.jpg" />
+    <Content Include="music\static\images\f4.jpg" />
+    <Content Include="music\static\images\img-sprite.png" />
+    <Content Include="music\static\images\m1.jpg" />
+    <Content Include="music\static\images\m2.jpg" />
+    <Content Include="music\static\images\m3.jpg" />
+    <Content Include="music\static\images\m4.jpg" />
+    <Content Include="music\static\images\m5.jpg" />
+    <Content Include="music\static\images\m6.jpg" />
+    <Content Include="music\static\images\menu-icon.png" />
+    <Content Include="music\static\images\move-top.png" />
+    <Content Include="music\static\images\s1.jpg" />
+    <Content Include="music\static\images\s2.jpg" />
+    <Content Include="music\static\images\s3.jpg" />
+    <Content Include="music\static\images\s4.jpg" />
+    <Content Include="music\static\images\s5.jpg" />
+    <Content Include="music\static\images\s6.jpg" />
+    <Content Include="music\static\images\s7.jpg" />
+    <Content Include="music\static\images\search.png" />
+    <Content Include="music\static\images\v1.jpg" />
+    <Content Include="music\static\images\v2.jpg" />
+    <Content Include="music\static\images\v3.jpg" />
+    <Content Include="music\static\images\v4.jpg" />
+    <Content Include="music\static\js\bootstrap.min.js" />
+    <Content Include="music\static\js\classie.js" />
+    <Content Include="music\static\js\jquery-1.11.1.min.js" />
+    <Content Include="music\static\js\jquery.flexslider.js" />
+    <Content Include="music\static\js\jquery.magnific-popup.js" />
+    <Content Include="music\static\js\responsiveslides.min.js" />
+    <Content Include="music\static\js\simpleCart.min.js" />
+    <Content Include="music\static\js\uisearch.js" />
+    <Content Include="music\templates\albums.html" />
+    <Content Include="requirements.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="music\" />
+    <Folder Include="music\migrations\" />
+    <Folder Include="music\static\" />
+    <Folder Include="music\static\css\" />
+    <Folder Include="music\static\fonts\" />
+    <Folder Include="music\static\images\" />
+    <Folder Include="music\static\js\" />
+    <Folder Include="music\templates\" />
+    <Folder Include="Ticket_concert\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.Django.targets" />
+  <!-- Specify pre- and post-build commands in the BeforeBuild and 
+       AfterBuild targets below. -->
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <AutoAssignPort>True</AutoAssignPort>
+          <UseCustomServer>True</UseCustomServer>
+          <CustomServerUrl>http://localhost</CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}" User="">
+        <WebProjectProperties>
+          <StartPageUrl>
+          </StartPageUrl>
+          <StartAction>CurrentPage</StartAction>
+          <AspNetDebugging>True</AspNetDebugging>
+          <SilverlightDebugging>False</SilverlightDebugging>
+          <NativeDebugging>False</NativeDebugging>
+          <SQLDebugging>False</SQLDebugging>
+          <ExternalProgram>
+          </ExternalProgram>
+          <StartExternalURL>
+          </StartExternalURL>
+          <StartCmdLineArguments>
+          </StartCmdLineArguments>
+          <StartWorkingDirectory>
+          </StartWorkingDirectory>
+          <EnableENC>False</EnableENC>
+          <AlwaysStartWebServerOnDebug>False</AlwaysStartWebServerOnDebug>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>
