@@ -31,53 +31,53 @@
 <div class="container" id="albums-container">
     <div class="title">Albums</div>
 </div>
-<script>
-    function get_url_albums(data){
-        var _url = "{% static 'img/GreenDay/albums/' %}"
-        var result = _url + data;
-        return result;
-    };
-    function create_album(data){
-        var container = $('div#albums-container');
-        if (data.length > 1) {
-            for (var i = 0; i < data.length; i++) {
-                var elm = '<div class="content-grid"><a class="play-icon popup-with-zoom-anim" href="#small-dialog">'
-                elm += '<img src=' + get_url_albums(data[i].picture) + ' title="allbum-name" /></a><h3>'+data[i].nameapp+'</h3><p>'+data[i].descriptions+'</p><div class="button play-icon popup-with-zoom-anim" id="btn_detail_album" data-links="'+data[i].link_url+'">Details</div></div>'
-                $(elm).appendTo(container);
-            }
-        } else {
-            var elm = '<div class="content-grid"><a class="play-icon popup-with-zoom-anim" href="#small-dialog">'
-                elm += '<img src=' + get_url_albums(data[0].picture) + ' title="allbum-name" /></a><h3>'+data[0].nameapp+'</h3><p>'+data[0].descriptions+'</p><div class="button play-icon popup-with-zoom-anim" id="btn_detail_album" data-links="'+data[0].link_url+'">Details</div></div>'
-                $(elm).appendTo(container);
-        }
-    }
-</script>
+<section class="projects" style="padding-top:40px;clear:left;">
+    
+    <div class="container-fluid" id="music-container">
+        <div class="title">Music</div>
+    </div>
+</section>
 <script>
     $(document).ready(function () {
+        var container_album = $('div#albums-container'),
+        container_music = $('div#music-container');
+        function create_separate_album(data) {
+
+            if (data.length > 1) {
+                for (var i = 0; i < data.length; i++) {
+                    var elm = '<div class="content-grid"><a class="albums-pict-container">'
+                    elm += '<img src=' + GD.get_url_albums(data[i].picture) + ' title="allbum-name" /></a><h3>' + data[i].nameapp + '</h3><p class="album-descriptions">' + data[i].descriptions + '</p><div class="button play-icon popup-with-zoom-anim" id="btn_detail_album" data-links="' + data[i].link_url + '">Details</div></div>'
+                    $(elm).appendTo(container_album);
+                }
+            } else {
+                var elm = '<div class="content-grid"><a class="play-icon popup-with-zoom-anim" href="#small-dialog">'
+                elm += '<img src=' + get_url_albums(data[0].picture) + ' title="allbum-name" /></a><h3>' + data[0].nameapp + '</h3><p class="album-descriptions">' + data[0].descriptions + '</p><div class="button play-icon popup-with-zoom-anim" id="btn_detail_album" data-links="' + data[0].link_url + '">Details</div></div>'
+                $(elm).appendTo(container_album);
+            }
+        };
+        function create_separate_music(data) {
+            if (data.length > 1) {
+                for (var i = 0; i < data.length; i++) {
+                    var elm = '<div class="project"><div class="row bg-white has-shadow"><div class="left-col col-lg-12 d-flex align-items-center justify-content-between"><div class="project-title d-flex align-items-center">';
+                    elm += '<div class="image has-shadow"><img src="' + GD.get_url_albums(data[i].picture) + '" alt="' + data[i].picture + '" class="img-fluid"></div><div class="text"><h3 class="h4">' + data[i].nameapp + '</h3><small> ' + data[i].albums + ' </small></div></div>';
+                    elm += '<div class="project-date"><span class="hidden-sm-down">durations <br />' + data[i].durations + '</span></div></div></div></div>';
+                    $(elm).appendTo(container_music);
+                }
+            }
+        };
         $.ajax({
             url: 'json/album/',
             success: function (data) {
-                create_album(data);
-
+                create_separate_album(data);
             }
         });
-        function clear_content_elem() {
-            $('div#GreenDay_slide, div#albums-container').remove()
-        };
-
-        function handler_album_click() {
-            if ($("div#btn_detail_album").is(':visible')) {
-                $("div#btn_detail_album").click(function (event) {
-                    console.log(this.dataset.links)
-                })
-            } else {
-                setTimeout(handler_album_click, 1000)
+        GD.handler_album_click();
+        $.ajax({
+            url: 'json/music/',
+            success: function (data) {
+                create_separate_music(data);
             }
-
-        };
-        handler_album_click();
-        
-        
+        })
     })
 </script>
 {% endblock %}

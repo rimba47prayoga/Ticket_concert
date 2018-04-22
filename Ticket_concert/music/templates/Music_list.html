@@ -1,0 +1,41 @@
+﻿{% extends 'layout.html' %}
+{% block sitemap %} > Music > list
+{% endblock %}
+{% block content %}
+{% load static %}
+<style>
+    div.container-fluid .project {
+        width: 48%;
+        display: inline-block;
+        padding: 0 3px;
+    }
+    .project div[class*="col-"] {
+        border:0
+    }
+    @media (max-width:690px) {
+        div.container-fluid .project {
+            width:100%;
+        }
+    }
+</style>
+<section class="projects" style="padding-top:40px;">
+    <div class="container-fluid">
+        <!-- Project-->
+        {% for i in music %}
+        <div class="project">
+            <div class="row bg-white has-shadow">
+                <div class="left-col col-lg-12 d-flex align-items-center justify-content-between">
+                <div class="project-title d-flex align-items-center">
+                    <div class="image has-shadow"><img src="{% static 'img/GreenDay/albums/' %}{{i.picture}}" alt="{{i.picture}}" class="img-fluid"></div>
+                    <div class="text">
+                    <h3 class="h4">{{i.nameapp}}</h3><small>{{i.albums}}</small>
+                    </div>
+                </div>
+                <div class="project-date"><span class="hidden-sm-down">durations <br />{{i.durations}}</span></div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

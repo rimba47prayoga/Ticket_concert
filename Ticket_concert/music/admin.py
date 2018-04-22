@@ -3,4 +3,4 @@ from .models import *
 # Register your models here.
 admin.site.register(Album)
 admin.site.register(Music)
-admin.site.register(Ticket)
+admin.site.register(Event)

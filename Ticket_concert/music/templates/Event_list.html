@@ -1,0 +1,49 @@
+﻿{% extends 'layout.html' %}
+{% block sitemap %} > Event > list
+{% endblock %}
+{% block content %}
+{% load static %}
+<style>
+    div.row.bg-white ul li {
+        display: table-cell;
+        cursor: pointer;
+        color: rgb(30, 30, 30);
+        font-size: 11pt;
+        font-weight: 300;
+        padding: 3px 0px;
+    }
+    div.row.bg-white ul {
+        display: table;
+        list-style: none;
+        margin: 10px 0px 0px;
+        padding: 0px;
+        width: 100%;
+        text-align: center;
+    }
+
+</style>
+    {% for i in event %}
+    <div class="container">
+	    <ul class="event-list">
+		    <li>
+			    <time datetime="2014-07-20 2000">
+				    <span class="day">{{ i.ticket_date|date:"d" }}</span>
+				    <span class="month">{{ i.ticket_date|date:"N" }}</span>
+				    <span class="year">{{ i.ticket_date|date:"Y" }}</span>
+				    <span class="time">8:00 PM</span>
+			    </time>
+			    <img alt="My 24th Birthday!" src="https://farm5.staticflickr.com/4150/5045502202_1d867c8a41_q.jpg" />
+			    <div class="info" style="background:#fff">
+				    <h2 class="title">{{i.location}}</h2>
+				    <p class="desc">{{i.sub_location}}</p>
+				    <ul>
+					    <li style="width:33%;">1</li>
+					    <li style="width:34%;">3 </li>
+					    <li style="width:33%;">103 </li>
+				    </ul>
+			    </div>
+		    </li>
+	    </ul>
+	</div>
+    {% endfor %}
+{% endblock %}

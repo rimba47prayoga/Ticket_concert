@@ -23,3 +23,5 @@ class SimpleTest(TestCase):
         Tests that 1 + 1 always equals 2.
         """
         self.assertEqual(1 + 1, 2)
+    def test_home(self):
+        response = self.client.get('/')

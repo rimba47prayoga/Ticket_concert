@@ -15,13 +15,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from music.views import Home, get_json_ticket, get_json_music, get_json_album, Album_view
+from music.views import Home, get_json_event, get_json_music, \
+    get_json_album, Album_view,Album_list,Music_list, Event_list,Event_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',Home),
-    path('json/ticket/',get_json_ticket),
+    path('',Home, name='home'),
+    path('json/ticket/',get_json_event),
     path('json/music/',get_json_music),
     path('json/album/',get_json_album),
-    path('album/<int:pk>/', Album_view,name='album_view')
+    path('album/<int:pk>/', Album_view,name='album_view'),
+    path('album/list/',Album_list,name='album_list'),
+    path('music/list/',Music_list,name='music_list'),
+    path('event/<int:pk>/',Event_view,name='event_view'),
+    path('event/list/',Event_list,name='event_list')
 ]

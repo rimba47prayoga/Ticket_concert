@@ -167,4 +167,60 @@ $(document).ready(function () {
         return false;
     });
 
+    // ------------------------------------------------------ //
+    // For click button , elm album
+    // ------------------------------------------------------ //
+
+    if (typeof GD == 'undefined') {
+        window.GD = {
+            get_url_albums : function(data) {
+            var _url =  "/static/img/GreenDay/albums/"
+            var result = _url + data;
+            return result;
+            },
+
+            clear_content_elem : function() {
+                $('div#GreenDay_slide, div#albums-container,section.projects').remove()
+            },
+
+            handler_album_click : function() {
+                if ($("div#btn_detail_album").is(':visible')) {
+                    $("div#btn_detail_album").click(function (event) {
+                        var links = this.dataset.links;
+                        $.ajax({
+                            url: links,
+                            beforeSend: function (data) {
+                                GD.clear_content_elem();
+                                $('body').append('<div class="dropSheet" style="height:' + $('body')[0].offsetHeight + 'px"></div>');
+                                $('div.dropSheet').append('<i style="position: absolute;z-index: 1000000;color: white;top: 4em;left: 9em;" class="fa fa-circle-o-notch fa-pulse fa-4x fa-fw"></i>');
+                                GD.processAjaxData(links);
+                            },
+                            success: function (data) {
+                                $('div.dropSheet').remove();
+                                $(data).appendTo($('div.content-inner'));
+                                var album_name = $('p#album-name').text()
+                                var home = document.createElement('a')
+                                home.href = '/'
+                                home.textContent = 'Home '
+                                var site_map = document.querySelector('h2.no-margin-bottom');
+                                site_map.textContent = '';
+                                site_map.appendChild(home);
+                                var text_album = document.createTextNode(' > ' + 'Album' + ' > ' +album_name)
+                                site_map.appendChild(text_album);
+                            }
+                        })
+                    })
+                } else {
+                    setTimeout(this.handler_album_click, 1000)
+                }
+
+            },
+            processAjaxData: function(urlPath){
+                window.history.pushState({"html":'GD',"pageTitle":'Green Day'},"", urlPath);
+            }
+        }
+        
+    }
+
+    
 });

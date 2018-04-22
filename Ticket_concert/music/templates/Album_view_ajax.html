@@ -1,0 +1,22 @@
+﻿{% load static %}
+<div class="container inline-block" style="padding:25px;">
+    <div id="info-albums-container" class="inline-block">
+        <div class="col-md-3" style="float:left"><img class="relatif" src="{% static 'img/GreenDay/albums/' %}{{obj.picture}}" /></div>
+        <div class="col-md-7" style="float:left;line-height:30px;">
+        <div><b>Album Name:</b><p id="album-name" style="display:inline;"> {{obj.nameapp}}</p></div>
+        <div><b>Genre:</b> {{obj.genre}}</div>
+        <div><b>Release Date:</b> {{obj.release_date|date:"d F Y"}}</div>
+        <div><b>Descriptions:</b> <br />{{obj.descriptions}}</div>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="title">
+        Related Music
+    </div>
+    <ol type="1">
+    {% for j in related_music %}
+    <li><b style="margin-right:25px;">{{j.nameapp}}</b>  {{j.durations}}</li>
+    {% endfor %}
+    </ol>
+</div>

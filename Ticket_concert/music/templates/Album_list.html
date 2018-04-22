@@ -1,0 +1,24 @@
+﻿{% extends 'layout.html' %}
+{% block sitemap %} > Album > list
+{% endblock %}
+{% block content %}
+{% load static %}
+<div class="container" id="albums-container">
+    <div class="title">Albums</div>
+    {% for i in album %}
+    <div class="content-grid">
+        <a class="albums-pict-container">
+            <img src="{% static 'img/GreenDay/albums/' %}{{ i.picture }}" title="allbum-name">
+        </a>
+        <h3>{{i.nameapp}}</h3><p class="album-descriptions">{{i.descriptions}}</p>
+        <div class="button play-icon popup-with-zoom-anim" id="btn_detail_album" data-links="{{i.link_url}}">Details</div>
+    </div>
+    {% endfor %}
+</div>
+<script>
+    $(document).ready(function () {
+        GD.handler_album_click();
+    });
+    
+</script>
+{% endblock %}
