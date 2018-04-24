@@ -6,7 +6,7 @@ from .data_layer.Music_BR import Music_BR_Manager
 class Album(models.Model):
     idapp = models.AutoField(primary_key=True)
     nameapp = models.CharField(max_length=125)
-    release_date = models.DateField(default=date.today())
+    release_date = models.DateField()
     genre = models.CharField(max_length=250,null=True)
     picture = models.ImageField(null=True)
     descriptions = models.TextField(null=True)
@@ -65,3 +65,12 @@ class Event(models.Model):
                 'ticket_date':self.ticket_date,
                 'price':self.price,'descriptions':self.descriptions,
                 'link_url':self.get_absolute_url()}
+
+    #def get_stock_ticket(self):
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField('auth.User',on_delete=models.CASCADE)
+    picture = models.ImageField(upload_to='User_image/',default='User_image/User-Default.jpg')
+    ticket = models.OneToOneField(Event,related_name='ticket',on_delete=models.CASCADE,null=True)
+    ticket_buyed = models.IntegerField(null=True)

@@ -1,0 +1,31 @@
+﻿{% extends 'layout.html' %}
+{% block content %}
+
+<div id="signUp" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" class="modal fade text-left show" style="display:block">
+    <div role="document" class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h4 id="exampleModalLabel" class="modal-title">Sign In</h4>
+            <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+        </div>
+        <div class="modal-body">
+            {% include 'SignIn_ajax.html' %}
+        </div>
+        <div class="modal-footer" style="display:inline-block;">
+            <button type="button" class="btn btn-primary" style="float:left;">Sign Up</button>
+            <button type="button" class="btn btn-primary" style="float:right;" id="btn_ok_login">OK</button>
+            <button type="button" data-dismiss="modal" class="btn btn-secondary" style="float:right" id="cancel">Cancel</button>
+        </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('button.close,button#cancel').click(function () {
+            $('div#signUp').removeClass('show').css('display','none')
+        });
+    });
+</script>
+
+{% endblock %}

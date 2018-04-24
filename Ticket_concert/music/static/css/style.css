@@ -451,7 +451,7 @@ nav.side-navbar ul li a {
   border-left: 4px solid transparent;
 }
 
-nav.side-navbar ul li a:hover {
+nav.side-navbar ul li a.red-hover:hover {
   background: #ed1c24;
   border-left: 4px solid #f20000;
   color: #fff;

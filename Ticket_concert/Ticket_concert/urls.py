@@ -14,19 +14,26 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from music.views import Home, get_json_event, get_json_music, \
-    get_json_album, Album_view,Album_list,Music_list, Event_list,Event_view
+    get_json_album, Album_view,Album_list,Music_list, Event_list,\
+    Event_view,signup,signin, ApiEndpoint, get_user_profile, signout
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',Home, name='home'),
-    path('json/ticket/',get_json_event),
-    path('json/music/',get_json_music),
-    path('json/album/',get_json_album),
+    path('json/ticket/',get_json_event,name='get_json_ticket'),
+    path('json/music/',get_json_music,name='get_json_music'),
+    path('json/album/',get_json_album,name='get_json_album'),
     path('album/<int:pk>/', Album_view,name='album_view'),
     path('album/list/',Album_list,name='album_list'),
     path('music/list/',Music_list,name='music_list'),
     path('event/<int:pk>/',Event_view,name='event_view'),
-    path('event/list/',Event_list,name='event_list')
+    path('event/list/',Event_list,name='event_list'),
+    path('signup/',signup,name='signup'),
+    path('signin/',signin,name='signin'),
+    path('signout/',signout,name='signout'),
+    path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
+    path('users/<str:username>/',get_user_profile),
+    path('api/hello', ApiEndpoint.as_view()),  # an example resource endpoint
 ]

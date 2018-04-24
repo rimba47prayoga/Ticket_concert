@@ -93,7 +93,48 @@ img.relatif {
     }
 }
 
+
+/*=========== For User Handler ==============*/
+
+ul#container-user-profile {
+    padding:1px 0;
+}
+
+ul#container-user-profile li a[aria-expanded="false"]::before {
+    content: '\f106';
+}
+
 /* ========== For ticket event ============*/
+
+
+ time {
+	display: inline-block;
+	width: 100%;
+	color: rgb(255, 255, 255);
+	background-color: #ed1c24;
+	padding: 5px;
+	text-align: center;
+	text-transform: uppercase;
+    height:100%;
+}
+ time > span {
+	display: none;
+}
+ time > .day {
+	display: block;
+	font-size: 56pt;
+	font-weight: 100;
+	line-height: 1;
+}
+ time > .month {
+	display: block;
+	font-size: 24pt;
+	font-weight: 900;
+	line-height: 1;
+}
+
+
+
     
 .event-list {
 	list-style: none;

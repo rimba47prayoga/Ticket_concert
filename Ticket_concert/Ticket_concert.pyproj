@@ -35,6 +35,12 @@
     <Compile Include="music\data_layer\Music_BR.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="music\forms.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="music\middleware.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="music\migrations\__init__.py" />
     <Compile Include="music\models.py" />
     <Compile Include="music\tests.py" />
@@ -53,8 +59,22 @@
     <Content Include="music\static\fonts\dashboard.svg" />
     <Content Include="music\static\fonts\dashboard.ttf" />
     <Content Include="music\static\fonts\dashboard.woff" />
+    <Content Include="music\static\img\American_idiot.jpg" />
+    <Content Include="music\static\img\GreenDay\albums\American_idiot.jpg" />
+    <Content Include="music\static\img\GreenDay\albums\GreenDay_1.jpg" />
+    <Content Include="music\static\img\GreenDay\albums\Revolutions_Radio.jpg" />
+    <Content Include="music\static\img\GreenDay\GD_Banner_1.jpg" />
+    <Content Include="music\static\img\GreenDay\GD_Banner_2.jpg" />
+    <Content Include="music\static\img\GreenDay\GD_Banner_3.jpg" />
+    <Content Include="music\static\img\GreenDay\GD_Banner_logo.jpg" />
+    <Content Include="music\static\img\GreenDay\GreenDay_1.jpg" />
+    <Content Include="music\static\img\GreenDay\GreenDay_2.jpg" />
+    <Content Include="music\static\img\GreenDay\GreenDay_3.jpg" />
+    <Content Include="music\static\img\GreenDay\GreenDay_logoa.jpg" />
     <Content Include="music\static\img\map-close.png" />
     <Content Include="music\static\img\map-marker-red.png" />
+    <Content Include="music\static\img\Revolutions_Radio.jpg" />
+    <Content Include="music\static\img\User_image\User-Default.jpg" />
     <Content Include="music\static\js\front.js" />
     <Content Include="music\static\vendor\bootstrap\css\bootstrap-grid.css" />
     <Content Include="music\static\vendor\bootstrap\css\bootstrap-grid.min.css" />
@@ -164,8 +184,17 @@
     <Content Include="music\static\vendor\popper.js\umd\popper-utils.min.js" />
     <Content Include="music\static\vendor\popper.js\umd\popper.js" />
     <Content Include="music\static\vendor\popper.js\umd\popper.min.js" />
+    <Content Include="music\templates\Album_list.html" />
+    <Content Include="music\templates\Album_view_ajax.html" />
+    <Content Include="music\templates\Album_view_render.html" />
+    <Content Include="music\templates\Event_view.html" />
     <Content Include="music\templates\index.html" />
     <Content Include="music\templates\layout.html" />
+    <Content Include="music\templates\Music_list.html" />
+    <Content Include="music\templates\Event_list.html" />
+    <Content Include="music\templates\SignIn_ajax.html" />
+    <Content Include="music\templates\SignIn_render.html" />
+    <Content Include="music\templates\SignUp.html" />
     <Content Include="requirements.txt" />
   </ItemGroup>
   <ItemGroup>
@@ -176,6 +205,9 @@
     <Folder Include="music\static\css\" />
     <Folder Include="music\static\fonts\" />
     <Folder Include="music\static\img\" />
+    <Folder Include="music\static\img\GreenDay\" />
+    <Folder Include="music\static\img\GreenDay\albums\" />
+    <Folder Include="music\static\img\User_image\" />
     <Folder Include="music\static\js\" />
     <Folder Include="music\static\vendor\" />
     <Folder Include="music\static\vendor\bootstrap\" />

@@ -1,0 +1,13 @@
+﻿<form method="post" action="{% url 'signin' %}">
+    {% csrf_token %}
+    <div class="form-group">
+        <label>User Name</label>
+        {{form.username}}
+    </div>
+    <div class="form-group">       
+        <label>Password</label>
+        {{form.password}}
+    </div>  
+    {{form.next}}
+    <input type="submit" value="Sign In" class="btn btn-primary" style="display:none" id="btn_submit_login">
+</form>

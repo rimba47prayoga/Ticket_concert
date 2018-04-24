@@ -20,30 +20,47 @@
         width: 100%;
         text-align: center;
     }
-
+    .stock-ticket {
+        width:31%;
+        display:inline-block;
+    }
+    .container-stock-ticket {
+        margin:0;
+    }
 </style>
-    {% for i in event %}
     <div class="container">
-	    <ul class="event-list">
-		    <li>
-			    <time datetime="2014-07-20 2000">
-				    <span class="day">{{ i.ticket_date|date:"d" }}</span>
-				    <span class="month">{{ i.ticket_date|date:"N" }}</span>
-				    <span class="year">{{ i.ticket_date|date:"Y" }}</span>
-				    <span class="time">8:00 PM</span>
-			    </time>
-			    <img alt="My 24th Birthday!" src="https://farm5.staticflickr.com/4150/5045502202_1d867c8a41_q.jpg" />
-			    <div class="info" style="background:#fff">
-				    <h2 class="title">{{i.location}}</h2>
-				    <p class="desc">{{i.sub_location}}</p>
-				    <ul>
-					    <li style="width:33%;">1</li>
-					    <li style="width:34%;">3 </li>
-					    <li style="width:33%;">103 </li>
-				    </ul>
-			    </div>
-		    </li>
-	    </ul>
-	</div>
-    {% endfor %}
+        {% for i in event %}
+        <div class="recent-activities card">
+            <div class="card-body no-padding">
+                <div class="item">
+                    <div class="row">
+                        <div class="col-2 date-holder text-right">
+                            <time datetime="2014-07-20 2000">
+				                <span class="day">{{ i.ticket_date|date:"d" }}</span>
+				                <span class="month">{{ i.ticket_date|date:"N" }}</span>
+				                <span class="year">{{ i.ticket_date|date:"Y" }}</span>
+				                <span class="time">8:00 PM</span>
+			                </time>
+                        </div>
+                        <div class="col-10 content">
+                            <h5 style="display:inline-block">Green Day at {{i.location}} , {{i.sub_location}}</h5>
+                            <div style="float:right">
+                                <a href="#">Add to Cart <i class="fa fa-shopping-cart"></i></a>
+                            </div>
+                            <p style="width:80%;">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud.</p>
+                            <div>
+                                <ul class="container-stock-ticket">
+					                <li class="stock-ticket">1</li>
+					                <li class="stock-ticket">3 </li>
+					                <li class="stock-ticket">103 </li>
+				                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
 {% endblock %}
