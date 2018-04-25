@@ -70,13 +70,17 @@
                 $('a#signIn').click(function (event) {
                     event.preventDefault();
                     var loc = window.location.href
-                    if (typeof loc.match(/next/) !== null) {
+                    var result;
+                    if (loc.match(/next/) !== null) {
                         var loc1 = loc.match(/next.*/)
                         var result = loc1[0].replace(/next\=/, '')
-                        setTimeout(function () {
-                            $('input#id_next').val(result);
-                        },500)
+                    } else {
+                        result = loc.replace('http:\/\/localhost\:8000', '')
+                        if (result.match(/\#/)) result = result.replace('\#', '')
                     };
+                    setTimeout(function () {
+                        $('input#id_next').val(result);
+                    }, 500)
                     $.ajax({
                         url: '/signin/',
                         success: function (data) {
@@ -146,7 +150,7 @@
                 <li><a href="#">Page</a></li>
                 </ul>
             </li>
-            <li><a href="#" class="red-hover"> <i class="fa fa-shopping-cart"></i>Cart </a></li>
+            <li {% if url_name == 'cart_list' %}class="active" {% endif %}><a href="{% url 'cart_list' %}" class="red-hover"> <i class="fa fa-shopping-cart"></i>Cart </a></li>
           </ul><span class="heading">Extras</span>
           <ul class="list-unstyled">
             <li> <a href="#"> <i class="icon-flask"></i>Other Menu </a></li>

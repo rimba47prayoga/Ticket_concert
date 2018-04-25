@@ -1,0 +1,121 @@
+﻿{% extends 'layout.html' %}
+{% block content %}
+<style>
+    div.card-body td {
+        vertical-align:middle
+    }
+</style>
+<div class="container" style="margin-top: 20px;">
+    <div id="checkout-list" tabindex="-1" role="dialog" aria-labelledby="cart-add" aria-hidden="true" class="modal fade text-left">
+        <div role="document" class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="exampleModalLabel" class="modal-title">Checkout</h4>
+                <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body" id="modal-checkout">
+                <!-- this fields load with ajax -->
+            </div>
+            <div class="modal-footer" style="display:inline-block;">
+                <button type="button" class="btn btn-primary" style="float:right;" id="btn_buy" data-toggle="modal" data-target="#checkout-confirm-address">Buy <i class="fa fa-money-bill-alt"> </i></button>
+                <button type="button" data-dismiss="modal" class="btn btn-secondary" style="float:right;margin-right:20px;" id="btn_cancel_buy">Cancel</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="checkout-confirm-address" tabindex="-1" role="dialog" aria-labelledby="checkout-confirm-address" aria-hidden="true" class="modal fade text-left">
+        <div role="document" class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="exampleModalLabel" class="modal-title">Confirm Address</h4>
+                <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body" id="modal-checkout-confirm">
+                <!-- this fields load with ajax -->
+            </div>
+            <div class="modal-footer" style="display:inline-block;">
+                <button type="button" class="btn btn-primary" style="float:right;" id="btn_ok_confirm_address">OK </i></button>
+                <button type="button" data-dismiss="modal" class="btn btn-secondary" style="float:right;margin-right:20px;" id="btn_cancel_confirm_address">Cancel</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    {% for i in ticket %}
+    <div class="card">
+        <div class="card-close">
+            <a href="#" style="color:#ffc107;margin-right:20px;"> <i class="fa fa-pencil"> </i> Edit</a>
+            <a href="#"> <i class="fa fa-times"> </i> Remove</a>
+        </div>
+        <div class="card-header d-flex align-items-center">
+            <h3 class="h4">Green Day in {{i.location}}</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Ticket</th>
+                            <th>Quantity</th>
+                            <th>Price/Unit</th>
+                            <th>Total Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <a href="#">Green Day in {{i.location}}</a>
+                                <p>{{i.sub_location}}</p>
+                                <p>At {{i.ticket_date|date:"d F Y H:m"}}</p>
+                                <p>{{i.descriptions}}</p>
+
+                            </td>
+                            <td>{{i.quantity}}</td>
+                            <td>{{i.price}}</td>
+                            <td>{{i.total_price}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    <div class="card" style="display:inline-block;float:right">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#checkout-list" id="checkout">Checkout</button>
+    </div>
+    <div class="card" style="display:inline-block;float:left;">
+        <button type="button" class="btn btn-secondary">Continue shopping</button>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('button#checkout').click(function () {
+            $.ajax({
+                url: '/checkout/list/',
+                success: function (data) {
+                    $('div#modal-checkout').html(data);
+                    $('input.checkbox-template').click(function () {
+                        var total_purchase = parseInt($('p#total_purchase')[0].textContent)
+                        if (this.checked) {
+                            total_purchase += parseInt(this.dataset.value)
+                        } else {
+                            total_purchase -= parseInt(this.dataset.value)
+                        }
+                        $('p#total_purchase')[0].textContent = total_purchase;
+                    });
+                }
+            });
+        });
+        $('#btn_buy').click(function (event) {
+            event.preventDefault();
+            $.ajax({
+                url: '/checkout/confirm/',
+                success: function (data) {
+                    $('#modal-checkout-confirm').html(data);
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

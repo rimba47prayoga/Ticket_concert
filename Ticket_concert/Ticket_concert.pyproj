@@ -187,6 +187,9 @@
     <Content Include="music\templates\Album_list.html" />
     <Content Include="music\templates\Album_view_ajax.html" />
     <Content Include="music\templates\Album_view_render.html" />
+    <Content Include="music\templates\Cart_list.html" />
+    <Content Include="music\templates\Checkout_confirm_address.html" />
+    <Content Include="music\templates\Checkout_list.html" />
     <Content Include="music\templates\Event_view.html" />
     <Content Include="music\templates\index.html" />
     <Content Include="music\templates\layout.html" />
@@ -195,6 +198,7 @@
     <Content Include="music\templates\SignIn_ajax.html" />
     <Content Include="music\templates\SignIn_render.html" />
     <Content Include="music\templates\SignUp.html" />
+    <Content Include="music\templates\Transaction_form.html" />
     <Content Include="requirements.txt" />
   </ItemGroup>
   <ItemGroup>

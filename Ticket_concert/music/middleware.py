@@ -17,46 +17,46 @@ class CheckTokenMiddleware(MiddlewareMixin):
         user = request.user
         # Code to be executed for each request/response after
         # the view is called.
-        if request.resolver_match.url_name == 'login' or request.resolver_match.url_name == 'signin':
-            print('========== THIS IS URL LOGIN ===========')
-            if request.method == 'POST' and user.is_authenticated:
-                print('========== AUTH SUCCESS ===========')
-                user_id = User.objects.get(username=request.POST['username'])
-                is_have_token = AccessToken.objects.filter(user=user_id.id).exists()
-                if is_have_token:
-                    AccessToken.objects.filter(user=request.user.id).delete()
-                    AccessToken.objects.create(user=user_id,token=generate_token(),
-                                                application=Application.objects.get(user=user_id),
-                                                expires=datetime.now() + timedelta(hours=1),
-                                                scope='read write')
-                else:
-                    AccessToken.objects.create(user=user_id,token=generate_token(),
-                                                application=Application.objects.get(user=user_id),
-                                                expires=datetime.now() + timedelta(hours=1),
-                                                scope='read write')
-                    print('========= Create Token ===========')
+        if hasattr(request.resolver_match,'url_name'):
+            if request.resolver_match.url_name == 'login' or request.resolver_match.url_name == 'signin':
+                print('========== THIS IS URL LOGIN ===========')
+                if request.method == 'POST' and user.is_authenticated:
+                    print('========== AUTH SUCCESS ===========')
+                    user_id = User.objects.get(username=request.POST['username'])
+                    is_have_token = AccessToken.objects.filter(user=user_id.id).exists()
+                    if is_have_token:
+                        AccessToken.objects.filter(user=request.user.id).delete()
+                        AccessToken.objects.create(user=user_id,token=generate_token(),
+                                                    application=Application.objects.get(user=user_id),
+                                                    expires=datetime.now() + timedelta(hours=1),
+                                                    scope='read write')
+                        print('========= Create Token ===========')
+                    else:
+                        AccessToken.objects.create(user=user_id,token=generate_token(),
+                                                    application=Application.objects.get(user=user_id),
+                                                    expires=datetime.now() + timedelta(hours=1),
+                                                    scope='read write')
+                        print('========= Create Token ===========')
 
-        else:
-            print(request.resolver_match.url_name)
-            print(reverse(request.resolver_match.url_name))
-            if user is not None and user.is_authenticated:
-                tok_hr = request.session.get('tok_hr')
-                tok_min = request.session.get('tok_min')
-                if tok_hr or tok_min is not None:
-                    now = datetime.now()
-                    if datetime(now.year,now.month,now.day,tok_hr,tok_min) > now:
+            else:
+                if user is not None and user.is_authenticated:
+                    #tok_hr = request.session.get('tok_hr')
+                    #tok_min = request.session.get('tok_min')
+                    #if tok_hr or tok_min is not None:
+                    #    now = datetime.now()
+                    #    if datetime(now.year,now.month,now.day,tok_hr,tok_min) > now:
+                    #        logout(request)
+                    #        return redirect(reverse('signin') + '?next=' + reverse(request.resolver_match.url_name))
+                    token = AccessToken.objects.filter(user=user.id)
+                    if token[0].is_expired():
                         logout(request)
+                        print('======= TOKEN EXPIRES AT' + request.META['PATH_INFO'])
                         return redirect(reverse('signin') + '?next=' + reverse(request.resolver_match.url_name))
-                token = AccessToken.objects.filter(user=user.id)
-                if token[0].is_expired():
-                    logout(request)
-                    print('======= TOKEN EXPIRES AT' + request.META['PATH_INFO'])
-                    return redirect(reverse('signin') + '?next=' + reverse(request.resolver_match.url_name))
-                else:
-                    token.update(expires = datetime.now() + timedelta(hours=1))
-                    request.session['tok_hr'] = token[0].expires.hour
-                    request.session['tok_min'] = token[0].expires.minute
-                    print('UPDATED TOKEN IN COMMON REQUEST')
+                    else:
+                        token.update(expires = datetime.now() + timedelta(hours=1))
+                        request.session['tok_hr'] = token[0].expires.hour
+                        request.session['tok_min'] = token[0].expires.minute
+                        print('UPDATED TOKEN IN COMMON REQUEST')
         return response
 
 

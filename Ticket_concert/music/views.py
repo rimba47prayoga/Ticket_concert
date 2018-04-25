@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from music.models import Event, Music, Album
+from music.models import Event, Music, Album, Cart,Ticket_transaction
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 from .data_layer.common import decorators
@@ -7,7 +7,7 @@ from django.http import HttpResponse
 from django.contrib.auth import login, authenticate, logout
 from django.shortcuts import render, redirect
 
-from .forms import SignUpForm, SignInForm
+from .forms import SignUpForm, SignInForm, TransactionForm
 
 
 def Home(request):
@@ -67,7 +67,12 @@ def Event_view(request,pk):
 
 def Event_list(request):
     event_all = Event.objects.all()
-    event = [i.get_dict_event for i in event_all]
+    event = []
+    user = None
+    if request.user.is_authenticated:
+        user = request.user.id
+    for i in event_all:
+        event.append(i.get_dict_event(user))
     return render(request,'Event_list.html',{'event':event})
 
 
@@ -126,3 +131,56 @@ def signout(request): # logs out the logged in users
     else:
         logout(request)
         return redirect("home")
+
+def add_cart(request):
+    if request.method == 'POST':
+        ticket_id = request.POST['ticket']
+        username = request.user.username
+        user = User.objects.get(username=username)
+        ticket = Event.objects.get(idapp=ticket_id)
+        cart = Cart.objects.create(ticket=ticket,user=user)
+        return HttpResponse(json.dumps({'message':'success','idapp':ticket_id}),content_type='application/json')
+
+def getForm_data(request,form):
+    clData = form.cleaned_data
+    return {
+        'user':User.objects.get(id=request.user.id),
+        'ticket':Event.objects.get(idapp=clData['ticket_idapp']),
+        'quantity':clData['quantity'],
+        'no_telp':clData['no_telp'],
+        'province':clData['province'],
+        'code_pos':clData['code_pos'],
+        'city':clData['city'],
+        'address':clData['address']
+        }
+
+def GD_Transaction(request):
+    if request.method == 'POST':
+        form = TransactionForm(request.POST)
+        if form.is_valid():
+            data = getForm_data(request,form)
+            Ticket_transaction.objects.create(user=data['user'],ticket=data['ticket'],quantity=data['quantity'],
+                                              no_telp=data['no_telp'],province=data['province'],city=data['city'],
+                                              address=data['address'])
+            return HttpResponse(json.dumps({'message':'success','idapp':data['ticket'].idapp}),content_type='application/json')
+    elif request.method == 'GET':
+        idapp_ticket = request.GET['idapp']
+        form = TransactionForm()
+        form.fields['ticket_idapp'].initial = idapp_ticket
+        return render(request,'Transaction_form.html',{'form':form})
+
+@login_required
+def GD_Cart(request):
+    ticket_data = Ticket_transaction.objects.filter(user=request.user.id)
+    ticket = [i.get_dict() for i in ticket_data]
+    return render(request,'Cart_list.html',{'ticket':ticket})
+
+from django.db.models import F, Sum
+def GD_Checkout_list(request):
+    ticket_data = Ticket_transaction.objects.filter(user=request.user.id)
+    ticket = [i.get_checkout_info() for i in ticket_data]
+    return render(request,'Checkout_list.html',{'ticket':ticket})
+
+def GD_Checkout_confirm(request):
+    address = Ticket_transaction.objects.filter(user=request.user.id).values('province','city','code_pos','address')
+    return render(request,'Checkout_confirm_address.html',{'address':address})

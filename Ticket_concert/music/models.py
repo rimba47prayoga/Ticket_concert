@@ -18,7 +18,9 @@ class Album(models.Model):
         return reverse('album_view',kwargs={'pk':self.idapp})
 
     def get_dict(self):
-        return {'link_url':self.get_absolute_url(),'nameapp':self.nameapp,'picture':self.picture.name,'descriptions':self.descriptions[:70] + '...'}
+        return {'link_url':self.get_absolute_url(),'nameapp':self.nameapp,
+                'picture':self.picture.name,
+                'descriptions':self.descriptions[:70] + '...'}
 
 class Music(models.Model):
     idapp = models.AutoField(primary_key=True)
@@ -48,7 +50,7 @@ class Event(models.Model):
     def get_absolute_url(self):
         return reverse('event_view',kwargs={'pk':self.idapp})
 
-    def get_dict_event(self):
+    def get_dict_event(self,user=None):
         music_list = self.ticket_for.all()
         count_music = music_list.count()
         music = music_list[0].nameapp
@@ -59,12 +61,18 @@ class Event(models.Model):
         if ',' in location:
             location = location.split(',')[0]
             sub_location = self.location.split(',')[1:][0]
-
-        return {'music_list':music,'location':location,
+        data = {'idapp':self.idapp,'music_list':music,'location':location,
                 'sub_location':sub_location,
                 'ticket_date':self.ticket_date,
                 'price':self.price,'descriptions':self.descriptions,
                 'link_url':self.get_absolute_url()}
+        if user is not None:
+            is_add = self.ticket_transaction_set.filter(user=user).exists()
+            if is_add:
+                data['is_add'] = True
+            else:
+                data['is_add'] = False
+        return data
 
     #def get_stock_ticket(self):
 
@@ -72,5 +80,49 @@ class Event(models.Model):
 class UserProfile(models.Model):
     user = models.OneToOneField('auth.User',on_delete=models.CASCADE)
     picture = models.ImageField(upload_to='User_image/',default='User_image/User-Default.jpg')
-    ticket = models.OneToOneField(Event,related_name='ticket',on_delete=models.CASCADE,null=True)
-    ticket_buyed = models.IntegerField(null=True)
+
+
+class Ticket_transaction(models.Model):
+    idapp = models.AutoField(primary_key=True)
+    user = models.ForeignKey('auth.User',on_delete=models.CASCADE)
+    ticket = models.ForeignKey(Event,on_delete=models.CASCADE)
+    quantity = models.IntegerField()
+    no_telp = models.CharField(max_length=15,null=True)
+    province = models.CharField(max_length=50,null=True) #provinsi
+    code_pos = models.CharField(max_length=10,null=True) 
+    city = models.CharField(max_length=20,null=True) #kota
+    address = models.TextField(null=True)
+    createddate = models.DateTimeField(auto_now_add=True)
+    modifieddate = models.DateTimeField(auto_now=True)
+
+    def get_dict(self):
+        ticket = self.ticket
+        location = ticket.location
+        sub_location = ''
+        if ',' in location:
+            location = location.split(',')[0]
+            sub_location = self.ticket.location.split(',')[1:][0]
+        return {
+            'location':location,
+            'sub_location':sub_location,
+            'ticket_date':ticket.ticket_date,
+            'quantity':self.quantity,
+            'price':str(ticket.price),
+            'total_price':str(self.quantity*ticket.price),
+            'descriptions':ticket.descriptions
+            }
+    def get_checkout_info(self):
+        ticket = self.ticket
+        return {
+            'idapp':self.idapp,
+            'location':ticket.location,
+            'ticket_date':ticket.ticket_date,
+            'quantity':self.quantity,
+            'price':str(ticket.price),
+            'total_price':str(self.quantity*ticket.price)
+            }
+
+class Cart(models.Model):
+    idapp = models.AutoField(primary_key=True)
+    user = models.ForeignKey('auth.User',on_delete=models.CASCADE)
+    ticket = models.ForeignKey(Event,on_delete=models.CASCADE)

@@ -27,6 +27,9 @@
     .container-stock-ticket {
         margin:0;
     }
+    p#added {
+        font-size:15px;
+    }
 </style>
     <div class="container">
         {% for i in event %}
@@ -44,10 +47,14 @@
                         </div>
                         <div class="col-10 content">
                             <h5 style="display:inline-block">Green Day at {{i.location}} , {{i.sub_location}}</h5>
-                            <div style="float:right">
-                                <a href="#">Add to Cart <i class="fa fa-shopping-cart"></i></a>
+                            <div style="float:right" data-parent="{{i.idapp}}">
+                                {% if i.is_add %}
+                                <p id="added" data-idapp="{{i.idapp}}">Added <i class="fa fa-check"></i></p>
+                                {% else %}
+                                <a href="#" id="add_to_cart" data-idapp="{{i.idapp}}" data-toggle="modal" data-target="#cart-add">Add to Cart <i class="fa fa-shopping-cart"></i></a>
+                                {% endif %}
                             </div>
-                            <p style="width:80%;">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud.</p>
+                            <p style="width:80%;">{{i.descriptions}}</p>
                             <div>
                                 <ul class="container-stock-ticket">
 					                <li class="stock-ticket">1</li>
@@ -62,5 +69,90 @@
         </div>
         {% endfor %}
     </div>
+    <div id="cart-add" tabindex="-1" role="dialog" aria-labelledby="cart-add" aria-hidden="true" class="modal fade text-left">
+        <div role="document" class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="exampleModalLabel" class="modal-title">Add Ticket</h4>
+                <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body" id="modal-transaction">
+                <!-- this fields load with ajax -->
+            </div>
+            <div class="modal-footer" style="display:inline-block;">
+                <button type="button" class="btn btn-primary" style="float:right;" id="btn_ok_transaction">OK</button>
+                <button type="button" data-dismiss="modal" class="btn btn-secondary" style="float:right;margin-right:20px;" id="btn_cancel_transaction">Cancel</button>
+            </div>
+            </div>
+        </div>
+    </div>
+{% if request.user.is_authenticated %}
+<script>
+    $(document).ready(function () {
+        function get_csrf() {
+            return document.cookie.replace(/csrftoken\=/, '')
+        }
+        $('a#add_to_cart').click(function (event) {
+            event.preventDefault();
+            $.ajax({
+                url: '/transactions/add/',
+                beforeSend: function (xhr,settings) {
+                    xhr.setRequestHeader("X-CSRFToken", get_csrf())
+                },
+                data: {
+                    'idapp':this.dataset.idapp
+                },
+                success: function (data) {
+                    $('div#modal-transaction').html(data);
+                    
+                },
+                complete: function (data) {
+                    if ($('#btn_to_cart').length > 0) {
+                        $('#btn_to_cart, #btn_continue').remove();
+                        $('#cart-add').find('.modal-footer').append('<button type="button" class="btn btn-primary" style="float:right;" id="btn_ok_transaction">OK</button><button type="button" data-dismiss="modal" class="btn btn-secondary" style="float:right;margin-right:20px;" id="btn_cancel_transaction">Cancel</button>')
+                    }
+                }
+            });
+        });
+        $('button#btn_ok_transaction').click(function () {
+            var form = $('form#form_transaction');
+            
+            if (form[0].checkValidity()) {
+                $.ajax({
+                    url: '/transactions/add/',
+                    method: 'POST',
+                    beforeSend: function (xhr, settings) {
+                        xhr.setRequestHeader("X-CSRFToken", get_csrf())
+                    },
+                    data: form.serialize(),
+                    success: function (data) {
+                        if (data['message'] == 'success') {
+                            $('a#add_to_cart[data-idapp="' + data['idapp'] + '"]').remove();
+                            $('div[data-parent="' + data['idapp'] + '"]').append('<p id="added">Added  <i class="fa fa-check"></i></p>')
+                            $('form#form_transaction').remove();
+                            $('div#modal-transaction').append('<h3>Ticket added to your cart <i class="fa fa-check"></i></h3>');
+                            $('button#btn_ok_transaction,button#btn_cancel_transaction').remove();
+                            $('div#cart-add').find('.modal-footer').append('<button type="button" data-dismiss="modal" class="btn btn-secondary" style="float:left;" id="btn_continue"><i class="fa fa-angle-left"> </i>  Continue shop</button><a href="/cart/list/" class="btn btn-primary" style="float:right;" id="btn_to_cart" style="color:#fff;">Go to Cart  <i class="fa fa-shopping-cart"> </i></a>')
 
+                        }
+                    }
+                });
+            } else {
+                $('#btn_submit_transaction').click();
+            }
+        });
+        
+    });
+</script>
+{% else %}
+<script>
+    $(document).ready(function () {
+        $('a#add_to_cart').click(function (event) {
+            event.preventDefault();
+            $('a#signIn').click();
+        });
+    });
+    
+</script>
+{% endif %}
 {% endblock %}

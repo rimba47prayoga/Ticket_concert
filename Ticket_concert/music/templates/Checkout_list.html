@@ -1,0 +1,23 @@
+﻿
+<div class="checklist card" style="border:unset;box-shadow:unset;">
+    <div class="card-body no-padding">
+        {% for i in ticket %}
+        <div class="item d-flex">
+            <input type="checkbox" class="checkbox-template" data-idapp="{{i.idapp}}" data-value="{{i.total_price}}">
+            <label class="checkout-info-label">
+                <p class="checkout-info-ticket col-md-9">
+                    Green Day in {{i.location}}
+                    <br />At {{i.ticket_date|date:"d F Y H:m"}}
+                    <br />Rp.{{i.total_price}}
+                </p>
+                <p class="checkout-qty-ticket"><strong>{{i.quantity}} ticket{% if i.quantity > 1 %}s {% endif %} <i class="fa fa-ticket"></i></strong></p>
+            </label>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-9">
+        <strong>Total Purchase : Rp.<p id="total_purchase" style="display:inline;">0</p></strong>
+    </div>
+</div>

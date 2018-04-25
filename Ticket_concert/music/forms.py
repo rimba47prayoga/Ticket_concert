@@ -36,3 +36,22 @@ class SignInForm(forms.Form):
                 raise forms.ValidationError("User is not Active.")
 
         return super(SignInForm, self).clean(*args, **kwargs)
+
+class TransactionForm(forms.Form):
+    first_name = forms.CharField(max_length=30,required=True,widget=forms.TextInput(attrs={
+        'class':'form-control','placeholder':'First Name'}))
+    last_name = forms.CharField(max_length=30,required=True,widget=forms.TextInput(attrs={
+        'class':'form-control','placeholder':'Last Name'}))
+    quantity = forms.IntegerField(required=True,widget=forms.NumberInput(attrs={
+        'class':'form-control','placeholder':'Quantity','style':'display:inline-block;'}))
+    no_telp = forms.CharField(max_length=20,required=True,widget=forms.TextInput(attrs={
+        'class':'form-control','placeholder':'No Telp'}))
+    province = forms.CharField(max_length=30,required=True,widget=forms.TextInput(attrs={
+        'class':'form-control','placeholder':'Province'}))
+    code_pos = forms.CharField(max_length=30,required=True,widget=forms.TextInput(attrs={
+        'class':'form-control','placeholder':'Code Pos'}))
+    city = forms.CharField(max_length=30,required=True,widget=forms.TextInput(attrs={
+        'class':'form-control','placeholder':'City'}))
+    address = forms.CharField(max_length=30,required=True,widget=forms.Textarea(attrs={
+        'class':'form-control','placeholder':'Address','style':'height:80px;max-height:120px;'}))
+    ticket_idapp = forms.CharField(max_length=100,required=False,widget=forms.HiddenInput())

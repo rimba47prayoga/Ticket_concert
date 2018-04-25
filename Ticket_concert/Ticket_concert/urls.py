@@ -17,7 +17,8 @@ from django.contrib import admin
 from django.urls import path, include
 from music.views import Home, get_json_event, get_json_music, \
     get_json_album, Album_view,Album_list,Music_list, Event_list,\
-    Event_view,signup,signin, ApiEndpoint, get_user_profile, signout
+    Event_view,signup,signin, ApiEndpoint, get_user_profile, signout,\
+    add_cart,GD_Transaction, GD_Cart,GD_Checkout_list,GD_Checkout_confirm
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -36,4 +37,11 @@ urlpatterns = [
     path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     path('users/<str:username>/',get_user_profile),
     path('api/hello', ApiEndpoint.as_view()),  # an example resource endpoint
+
+    path('add_to_cart/',add_cart,name='add_cart'),
+    path('transactions/add/',GD_Transaction,name='add_transaction'),
+    path('cart/list/',GD_Cart,name='cart_list'),
+
+    path('checkout/list/',GD_Checkout_list),
+    path('checkout/confirm/',GD_Checkout_confirm)
 ]
