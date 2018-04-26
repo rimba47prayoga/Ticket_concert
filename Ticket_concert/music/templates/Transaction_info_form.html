@@ -1,0 +1,67 @@
+﻿<div style="text-align:right;display:none"><a href="#" id="back_address"><  Back</a></div>
+<form method="post" onsubmit="return false" id="form_transaction" {% if transaction_data %} style="display:none" {% endif %}>
+    {% csrf_token %}
+    <div class="form-group col-md-5" style="padding-left:0;display:inline-block;">
+        <label>First Name</label>
+        {{form.first_name}}
+    </div>
+    <div class="form-group col-md-6" style="padding-right:0;display:inline-block;">
+        <label>Last Name</label>
+        {{form.last_name}}
+    </div>
+    <div class="form-group col-md-5" style="padding-left:0;display:inline-block;">
+        <label>Phone Number</label>
+        {{form.no_telp}}
+    </div>
+    <div class="form-group col-md-6" style="padding-right:0;display:inline-block;">
+        <label>Quantity</label>
+        {{form.quantity}}
+    </div>
+    <div class="form-group col-md-5" style="padding-left:0;display:inline-block;">
+        <label>Code Post</label>
+        {{form.code_pos}}
+    </div>
+    <div class="form-group col-md-6" style="padding-right:0;display:inline-block;">
+        <label>Province</label>
+        {{form.province}}
+    </div>
+    <div class="form-group">
+        <label>City</label>
+        {{form.city}}
+    </div>
+    <div class="form-group">
+        <label>Address</label>
+        {{form.address}}
+    </div>
+    {{form.ticket_idapp}}
+    <input type="submit" value="Sign In" class="btn btn-primary" style="display:none" id="btn_submit_transaction">
+</form>
+<div id="current-address">
+    <div style="text-align:right;"><a href="#" id="add_other_address">Add other address > </a></div>
+    {% for i in transaction_data %}
+    <div class="item d-flex address">
+        <input type="radio" class="checkbox-template" name="radio-address" data-idapp="{{i.idapp}}">
+        <label class="checkout-info-label"><i class="fa fa-home"> </i> 
+            {{i.province}} , {{i.city}} {{i.code_pos}} , {{i.address}}
+        </label>
+    </div>
+    {% endfor %}
+    <div class="form-group col-md-6" style="padding-right:0;display:inline-block;">
+        <label>Quantity</label>
+        <input name="quantity" class="form-control" placeholder="Quantity" style="display:inline-block;" required="" id="id_quantity2" type="number">
+    </div>
+</div>
+<script>
+    $('a#add_other_address').click(function (event) {
+        event.preventDefault();
+        $('form#form_transaction').css('display', 'block');
+        $('div#current-address').css('display', 'none');
+        $('a#back_address').parent().css('display', 'block');
+    });
+    $('a#back_address').click(function (event) {
+        event.preventDefault();
+        $('form#form_transaction').css('display', 'none');
+        $('div#current-address').css('display', 'block');
+        $('a#back_address').parent().css('display', 'none');
+    });
+</script>

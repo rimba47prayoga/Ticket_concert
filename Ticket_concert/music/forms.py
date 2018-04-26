@@ -1,19 +1,28 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 
-class SignUpForm(UserCreationForm):
-    first_name = forms.CharField(max_length=30, required=True, help_text='Optional.',widget=forms.TextInput(attrs={
+class SignUpForm(forms.Form):
+    first_name = forms.CharField(max_length=30, required=True,widget=forms.TextInput(attrs={
         'class':'form-control','placeholder':'First Name'}))
-    last_name = forms.CharField(max_length=30, required=False, help_text='Optional.',widget=forms.TextInput(attrs={
+    last_name = forms.CharField(max_length=30, required=False,widget=forms.TextInput(attrs={
         'class':'form-control','placeholder':'Last Name'}))
+    username = forms.CharField(max_length=30, required=True,widget=forms.TextInput(attrs={
+        'class':'form-control','placeholder':'User Name'}))
     email = forms.EmailField(max_length=254,required=True, help_text='Required. Inform a valid email address.',widget=forms.TextInput(attrs={
         'class':'form-control','placeholder':'Email'}))
+    password1 = forms.CharField(max_length=30, required=True,widget=forms.PasswordInput(attrs={
+        'class':'form-control','placeholder':'Password'}))
+    password2 = forms.CharField(max_length=30, required=True,widget=forms.PasswordInput(attrs={
+        'class':'form-control','placeholder':'Confirm Password'}))
 
-    class Meta:
-        model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2', )
+    def save(self, commit=True):
+        user = User.objects.create_user(first_name=self.cleaned_data['first_name'],
+                                        last_name=self.cleaned_data['last_name'],
+                                        username=self.cleaned_data['username'],
+                                        email=self.cleaned_data['email'],
+                                        password=self.cleaned_data['password1'])
+        return user
 
 class SignInForm(forms.Form):
     username = forms.CharField(max_length=30,required=True,widget=forms.TextInput(attrs={
@@ -37,7 +46,7 @@ class SignInForm(forms.Form):
 
         return super(SignInForm, self).clean(*args, **kwargs)
 
-class TransactionForm(forms.Form):
+class Transaction_InfoForm(forms.Form):
     first_name = forms.CharField(max_length=30,required=True,widget=forms.TextInput(attrs={
         'class':'form-control','placeholder':'First Name'}))
     last_name = forms.CharField(max_length=30,required=True,widget=forms.TextInput(attrs={

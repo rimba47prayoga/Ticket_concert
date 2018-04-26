@@ -1,12 +1,8 @@
-﻿<form>
-{% for i in address %}
-
-    <div class="item d-flex">
+﻿{% for i in address %}
+    <div class="item d-flex address">
         <input type="radio" class="checkbox-template" name="radio-address">
-        <label class="checkout-info-label">
-            {{i.address}}
+        <label class="checkout-info-label"><i class="fa fa-home"> </i> 
+           {{i.province}} , {{i.city}} {{i.code_pos}} , {{i.address}}
         </label>
     </div>
-
 {% endfor %}
-</form>

@@ -2,24 +2,24 @@
 {% block content %}
 <style>
     div.card-body td {
-        vertical-align:middle
+        vertical-align: middle;
     }
 </style>
 <div class="container" style="margin-top: 20px;">
     <div id="checkout-list" tabindex="-1" role="dialog" aria-labelledby="cart-add" aria-hidden="true" class="modal fade text-left">
         <div role="document" class="modal-dialog">
             <div class="modal-content">
-            <div class="modal-header">
-                <h4 id="exampleModalLabel" class="modal-title">Checkout</h4>
-                <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
-            </div>
-            <div class="modal-body" id="modal-checkout">
-                <!-- this fields load with ajax -->
-            </div>
-            <div class="modal-footer" style="display:inline-block;">
-                <button type="button" class="btn btn-primary" style="float:right;" id="btn_buy" data-toggle="modal" data-target="#checkout-confirm-address">Buy <i class="fa fa-money-bill-alt"> </i></button>
-                <button type="button" data-dismiss="modal" class="btn btn-secondary" style="float:right;margin-right:20px;" id="btn_cancel_buy">Cancel</button>
-            </div>
+                <div class="modal-header">
+                    <h4 id="exampleModalLabel" class="modal-title">Checkout</h4>
+                    <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body" id="modal-checkout">
+                    <!-- this fields load with ajax -->
+                </div>
+                <div class="modal-footer" style="display:inline-block;">
+                    <button type="button" class="btn btn-primary" style="float:right;" id="btn_buy" data-toggle="modal" data-target="#checkout-confirm-address">Buy <i class="fa fa-money-bill-alt"> </i></button>
+                    <button type="button" data-dismiss="modal" class="btn btn-secondary" style="float:right;margin-right:20px;" id="btn_cancel_buy">Cancel</button>
+                </div>
             </div>
         </div>
     </div>
@@ -27,23 +27,23 @@
     <div id="checkout-confirm-address" tabindex="-1" role="dialog" aria-labelledby="checkout-confirm-address" aria-hidden="true" class="modal fade text-left">
         <div role="document" class="modal-dialog">
             <div class="modal-content">
-            <div class="modal-header">
-                <h4 id="exampleModalLabel" class="modal-title">Confirm Address</h4>
-                <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
-            </div>
-            <div class="modal-body" id="modal-checkout-confirm">
-                <!-- this fields load with ajax -->
-            </div>
-            <div class="modal-footer" style="display:inline-block;">
-                <button type="button" class="btn btn-primary" style="float:right;" id="btn_ok_confirm_address">OK </i></button>
-                <button type="button" data-dismiss="modal" class="btn btn-secondary" style="float:right;margin-right:20px;" id="btn_cancel_confirm_address">Cancel</button>
-            </div>
+                <div class="modal-header">
+                    <h4 id="exampleModalLabel" class="modal-title">Confirm Address</h4>
+                    <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body" id="modal-checkout-confirm">
+                    <!-- this fields load with ajax -->
+                </div>
+                <div class="modal-footer" style="display:inline-block;">
+                    <button type="button" class="btn btn-primary" style="float:right;" id="btn_ok_confirm_address">OK </button>
+                    <button type="button" data-dismiss="modal" class="btn btn-secondary" style="float:right;margin-right:20px;" id="btn_cancel_confirm_address">Cancel</button>
+                </div>
             </div>
         </div>
     </div>
-
-    {% for i in ticket %}
-    <div class="card">
+    {% if cart %}
+    {% for i in cart %}
+    <div class="card" data-idapp="{{i.idapp}}" id="container-ticket">
         <div class="card-close">
             <a href="#" style="color:#ffc107;margin-right:20px;"> <i class="fa fa-pencil"> </i> Edit</a>
             <a href="#"> <i class="fa fa-times"> </i> Remove</a>
@@ -87,9 +87,37 @@
     <div class="card" style="display:inline-block;float:left;">
         <button type="button" class="btn btn-secondary">Continue shopping</button>
     </div>
+    {% else %}
+    <div class="container">
+        <i class="fa fa-shopping-cart" style="font-size:150px"></i>
+        <h1>There's No Ticket in your Cart</h1>
+    </div>
+    {% endif %}
 </div>
 <script>
     $(document).ready(function () {
+        function getCheckedBoxes(Class) {
+            var checkboxes = document.querySelectorAll(Class);
+            var idapp = [];
+            var idapp_ticket = [];
+            var quantity = []
+            for (var i = 0; i < checkboxes.length; i++) {
+                if (checkboxes[i].checked) {
+                    idapp.push(checkboxes[i].dataset.idapp);
+                    idapp_ticket.push(checkboxes[i].dataset.idappticket);
+                    quantity.push(checkboxes[i].dataset.quantity);
+                }
+            }
+            return {
+                'idapp': String(idapp),
+                'idapp_ticket': String(idapp_ticket),
+                'quantity': String(quantity)
+            }
+        }
+
+        
+
+
         $('button#checkout').click(function () {
             $.ajax({
                 url: '/checkout/list/',
@@ -99,22 +127,86 @@
                         var total_purchase = parseInt($('p#total_purchase')[0].textContent)
                         if (this.checked) {
                             total_purchase += parseInt(this.dataset.value)
+                            document.getElementById('total_idapp').value += this.dataset.idapp;
                         } else {
-                            total_purchase -= parseInt(this.dataset.value)
+                            total_purchase -= parseInt(this.dataset.value);
+                            document.getElementById('total_idapp').value -= this.dataset.idapp;
                         }
-                        $('p#total_purchase')[0].textContent = total_purchase;
+                        $('p#total_purchase')[0].textContent = total_purchase.toFixed(2);
                     });
                 }
             });
         });
         $('#btn_buy').click(function (event) {
             event.preventDefault();
-            $.ajax({
-                url: '/checkout/confirm/',
-                success: function (data) {
-                    $('#modal-checkout-confirm').html(data);
+            if (getCheckedBoxes('#checkbox-ticket')['idapp'] !== "") {
+                $.ajax({
+                    url: '/checkout/confirm/',
+                    success: function (data) {
+                        var modal_body = $('#modal-checkout-confirm')
+                        modal_body.html(data);
+                        if ($('button#btn_ok_confirm_address').css('display') == "none") {
+                            $('#btn_ok_confirm_address,#btn_cancel_confirm_address').css('display', 'block');
+                            if ($('#btn_go_to_event_list').length > 0) {
+                                $('#btn_go_to_event_list,#btn_buy_other').remove();
+                            }
+                        }
+                    }
+                });
+            } else {
+                if ($('p#select_ticket').length == 0) {
+                    $('div#modal-checkout').append('<p style="color:red" id="select_ticket">Please select a ticket to buy!!</p>')
                 }
-            });
+                return false;
+            }
+
+        });
+        $('button#btn_ok_confirm_address').click(function () {
+            var data = GD.check_RadioChecked('input[name="radio-address"]');
+            if (data) {
+                $.ajax({
+                    url: '/checkout/confirm/',
+                    method: 'POST',
+                    beforeSend: function (xhr, settings) {
+                        xhr.setRequestHeader('X-CSRFToken', GD.get_csrf())
+                    },
+                    data:  getCheckedBoxes('#checkbox-ticket'),
+                    success: function (data) {
+                        if (data['message'] == 'success') {
+                            var dialog_confirm = $('#modal-checkout-confirm')
+                            dialog_confirm.html('<h3> Thanks to order ..</h3>');
+                            dialog_confirm.next().find('#btn_ok_confirm_address,#btn_cancel_confirm_address').css('display', 'none')
+                            if (typeof data['idapp'] == "object") {
+                                for (var i = 0; i < data['idapp'].length; i++) {
+                                    $('input#checkbox-ticket[data-idapp="' + data['idapp'][i] + '"]').parent().remove()
+                                    $('div#container-ticket[data-idapp="' + data['idapp'][i] + '"]').remove();
+                                }
+                            } else {
+                                $('input#checkbox-ticket[data-idapp="' + data['idapp'] + '"]').parent().remove();
+                                $('div#container-ticket[data-idapp="' + data['idapp'] + '"]').remove();
+                            }
+                            $('p#total_purchase').text('0')
+                            var el = '<a class="btn btn-secondary" style="float:left;" id="btn_go_to_event_list" href="/event/list/">Go to Event list</a>'
+                            if ($('input#checkbox-ticket').length > 0) {
+                                el += '<button type="button" data-dismiss="modal" class="btn btn-primary" style="float:right;" id="btn_buy_other">Buy Other</button>'
+                            } else {
+                                $('div#checkout-list, div.modal-backdrop').remove();
+                                $('button#checkout').parent().next().remove();
+                                $('button#checkout').parent().remove();
+                                $('div.container').html('<i class="fa fa-shopping-cart" style="font-size:150px"></i><h1>There\'s No Ticket in your Cart</h1>')
+                            }
+                            dialog_confirm.next().append(el);
+
+                        }
+                    }
+                });
+            } else {
+                if ($('p#select_address').length == 0) {
+                    $('div#modal-checkout-confirm').append('<p style="color:red" id="select_address">Please select your address!!</p>')
+                }
+            }
+
+
         });
     });
 </script>

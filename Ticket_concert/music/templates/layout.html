@@ -57,7 +57,7 @@
                 {% if request.user.is_authenticated %}
                 <li class="nav-item"><a href="{% url 'signout' %}" class="nav-link logout">Sign out<i class="fa fa-sign-out"></i></a></li>
                 {% else %}
-                <li class="nav-item"><a id="signIn" href="#" class="nav-link logout" data-toggle="modal" data-target="#signUp">Sign in<i class="fa fa-sign-in"></i></a></li>
+                <li class="nav-item"><a id="signIn" href="#" class="nav-link logout" data-toggle="modal" data-target="#signIn-dialog">Sign in<i class="fa fa-sign-in"></i></a></li>
                 {% endif %}
               </ul>
             </div>
@@ -84,30 +84,42 @@
                     $.ajax({
                         url: '/signin/',
                         success: function (data) {
-                            $('div.modal-body').html(data);
+                            $('div#signin-body').html(data);
                         }
                     });
                 });
                 $('button#btn_ok_login').click(function () {
                     $('input#btn_submit_login').click();
                 });
+                $('button#signUp').click(function (event) {
+                    event.preventDefault();
+                    $.ajax({
+                        url: '/signup/',
+                        success: function (data) {
+                            $('div#signup-body').html(data);
+                        }
+                    });
+                });
+                $('button#btn_ok_signup').click(function () {
+                    $('input#btn_submit_signup').click();
+                });
             });
         </script>
 
         <!-- ==================== User Dialog Login ==================== -->
 
-        <div id="signUp" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
+        <div id="signIn-dialog" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
             <div role="document" class="modal-dialog">
                 <div class="modal-content">
                 <div class="modal-header">
                     <h4 id="exampleModalLabel" class="modal-title">Sign In</h4>
                     <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" id="signin-body">
                     <!-- this fields load with ajax -->
                 </div>
                 <div class="modal-footer" style="display:inline-block;">
-                    <button type="button" class="btn btn-primary" style="float:left;">Sign Up</button>
+                    <button type="button" class="btn btn-primary" style="float:left;" id="signUp"  data-toggle="modal" data-target="#signUp-dialog">Sign Up</button>
                     <button type="button" class="btn btn-primary" style="float:right;" id="btn_ok_login">OK</button>
                     <button type="button" data-dismiss="modal" class="btn btn-secondary" style="float:right">Cancel</button>
                 </div>
@@ -115,6 +127,24 @@
             </div>
         </div>
 
+        <div id="signUp-dialog" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
+            <div role="document" class="modal-dialog">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h4 id="exampleModalLabel" class="modal-title">Sign Up</h4>
+                    <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body" id="signup-body">
+                    <!-- this fields load with ajax -->
+                </div>
+                <div class="modal-footer" style="display:inline-block;">
+                    <button type="button" class="btn btn-primary" style="float:right;" id="btn_ok_signup">OK</button>
+                    <button type="button" data-dismiss="modal" class="btn btn-secondary" style="float:right">Cancel</button>
+                </div>
+                </div>
+            </div>
+        </div>
+        
 
       <div class="page-content d-flex align-items-stretch"> 
         <!-- Side Navbar -->

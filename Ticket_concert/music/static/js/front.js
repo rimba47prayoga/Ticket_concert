@@ -217,6 +217,18 @@ $(document).ready(function () {
             },
             processAjaxData: function(urlPath){
                 window.history.pushState({"html":'GD',"pageTitle":'Green Day'},"", urlPath);
+            },
+            get_csrf : function() {
+            return document.cookie.replace(/csrftoken\=/, '')
+            },
+            check_RadioChecked : function(Selector) {
+                var radio = document.querySelectorAll(Selector);
+                for (var i = 0; i < radio.length; i++) {
+                    if (radio[i].checked) {
+                        return true;
+                        break;
+                    }
+                }
             }
         }
         

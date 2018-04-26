@@ -23,6 +23,7 @@
     .stock-ticket {
         width:31%;
         display:inline-block;
+        font-size:15px;
     }
     .container-stock-ticket {
         margin:0;
@@ -49,7 +50,7 @@
                             <h5 style="display:inline-block">Green Day at {{i.location}} , {{i.sub_location}}</h5>
                             <div style="float:right" data-parent="{{i.idapp}}">
                                 {% if i.is_add %}
-                                <p id="added" data-idapp="{{i.idapp}}">Added <i class="fa fa-check"></i></p>
+                                <p id="added" data-idapp="{{i.idapp}}">In Cart<i class="fa fa-check"></i></p>
                                 {% else %}
                                 <a href="#" id="add_to_cart" data-idapp="{{i.idapp}}" data-toggle="modal" data-target="#cart-add">Add to Cart <i class="fa fa-shopping-cart"></i></a>
                                 {% endif %}
@@ -57,9 +58,9 @@
                             <p style="width:80%;">{{i.descriptions}}</p>
                             <div>
                                 <ul class="container-stock-ticket">
-					                <li class="stock-ticket">1</li>
-					                <li class="stock-ticket">3 </li>
-					                <li class="stock-ticket">103 </li>
+					                <li class="stock-ticket">Sold : {{i.total_sold}}</li>
+					                <li class="stock-ticket">Available : {{i.available_ticket}} </li>
+					                <li class="stock-ticket">Total ticket : {{i.total_ticket}} </li>
 				                </ul>
                             </div>
                         </div>
@@ -89,15 +90,39 @@
 {% if request.user.is_authenticated %}
 <script>
     $(document).ready(function () {
-        function get_csrf() {
-            return document.cookie.replace(/csrftoken\=/, '')
-        }
+        function dataTransaction() {
+            //if ($('form#form_transaction').css('display') == 'none') {
+            //    var radio = $('input[name="radio-address"]');
+            //    data = []
+            //    for (var i = 0; i < radio.length; i++) {
+            //        if (radio[i].checked) {
+            //            data.push(radio[i].dataset.idapp)
+            //        }
+            //    };
+            //    return { 'mode': 'exists_transaction', 'trans_id': data[0] }
+            //} else {
+                return {
+                    'mode':'add_address',
+                    'first_name': $('#id_first_name').val(),
+                    'last_name': $('#id_last_name').val(),
+                    'no_telp': $('#id_no_telp').val(),
+                    'quantity': $('#id_quantity').val(),
+                    'code_pos': $('#id_code_pos').val(),
+                    'province': $('#id_province').val(),
+                    'city': $('#id_city').val(),
+                    'address': $('#id_address').val(),
+                    'ticket_idapp': $('#id_ticket_idapp').val()
+                }
+            //}
+            
+        };
+
         $('a#add_to_cart').click(function (event) {
             event.preventDefault();
             $.ajax({
-                url: '/transactions/add/',
+                url: '/transactions/info/',
                 beforeSend: function (xhr,settings) {
-                    xhr.setRequestHeader("X-CSRFToken", get_csrf())
+                    xhr.setRequestHeader("X-CSRFToken", GD.get_csrf())
                 },
                 data: {
                     'idapp':this.dataset.idapp
@@ -109,37 +134,78 @@
                 complete: function (data) {
                     if ($('#btn_to_cart').length > 0) {
                         $('#btn_to_cart, #btn_continue').remove();
-                        $('#cart-add').find('.modal-footer').append('<button type="button" class="btn btn-primary" style="float:right;" id="btn_ok_transaction">OK</button><button type="button" data-dismiss="modal" class="btn btn-secondary" style="float:right;margin-right:20px;" id="btn_cancel_transaction">Cancel</button>')
+                        $('#cart-add').find('.modal-footer').children().css('display', 'block');
                     }
                 }
             });
         });
+
+        function add_cart() {
+            $.ajax({
+                url: '/cart/add/',
+                method: 'POST',
+                beforeSend: function (xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", GD.get_csrf())
+                },
+                data: {
+                    'ticket_idapp': $('#id_ticket_idapp').val(),
+                    'quantity': $('form#form_transaction').css('display') == 'none' ? $('#id_quantity2').val() : $('#id_quantity').val()
+                },
+                success: function (data) {
+                    if (data['message'] == 'success') {
+                        $('a#add_to_cart[data-idapp="' + data['idapp'] + '"]').remove();
+                        $('div[data-parent="' + $('#id_ticket_idapp').val() + '"]').append('<p id="added">In Cart <i class="fa fa-check"></i></p>')
+                        $('form#form_transaction').remove();
+                        $('div#modal-transaction').html('<h3>Ticket added to your cart <i class="fa fa-check"></i></h3>');
+                        $('button#btn_ok_transaction,button#btn_cancel_transaction').css('display', 'none');
+                        $('div#cart-add').find('.modal-footer').append('<button type="button" data-dismiss="modal" class="btn btn-secondary" style="float:left;" id="btn_continue"><i class="fa fa-angle-left"> </i>  Continue shop</button><a href="/cart/list/" class="btn btn-primary" style="float:right;" id="btn_to_cart" style="color:#fff;">Go to Cart  <i class="fa fa-shopping-cart"> </i></a>')
+                    }
+                }
+            })
+        }
+
+        function send_dataTransaction() {
+            $.ajax({
+                url: '/transactions/add/',
+                method: 'POST',
+                beforeSend: function (xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", GD.get_csrf())
+                },
+                data: dataTransaction(),
+                success: function (data) {
+                    if (data['message'] == 'success') {
+                        return 'success'
+                    }
+                }
+            });
+        }
+
         $('button#btn_ok_transaction').click(function () {
             var form = $('form#form_transaction');
-            
-            if (form[0].checkValidity()) {
-                $.ajax({
-                    url: '/transactions/add/',
-                    method: 'POST',
-                    beforeSend: function (xhr, settings) {
-                        xhr.setRequestHeader("X-CSRFToken", get_csrf())
-                    },
-                    data: form.serialize(),
-                    success: function (data) {
-                        if (data['message'] == 'success') {
-                            $('a#add_to_cart[data-idapp="' + data['idapp'] + '"]').remove();
-                            $('div[data-parent="' + data['idapp'] + '"]').append('<p id="added">Added  <i class="fa fa-check"></i></p>')
-                            $('form#form_transaction').remove();
-                            $('div#modal-transaction').append('<h3>Ticket added to your cart <i class="fa fa-check"></i></h3>');
-                            $('button#btn_ok_transaction,button#btn_cancel_transaction').remove();
-                            $('div#cart-add').find('.modal-footer').append('<button type="button" data-dismiss="modal" class="btn btn-secondary" style="float:left;" id="btn_continue"><i class="fa fa-angle-left"> </i>  Continue shop</button><a href="/cart/list/" class="btn btn-primary" style="float:right;" id="btn_to_cart" style="color:#fff;">Go to Cart  <i class="fa fa-shopping-cart"> </i></a>')
-
+            if ($('input[name="radio-address"]').length > 0) {
+                if ($('input[name="radio-address"]').css('display') !== 'none') {
+                    var data = GD.check_RadioChecked('input[name="radio-address"]');
+                    if (!data) {
+                        if ($('p#select_address').length == 0) {
+                            return $('#modal-transaction').append('<p style="color:red" id="select_address">Please select your address!!</p>')
                         }
                     }
-                });
-            } else {
-                $('#btn_submit_transaction').click();
+                }
+                
             }
+            
+            if (form.css('display') == 'none') {
+                //send_dataTransaction();
+                return add_cart();
+            } else {
+                if (form[0].checkValidity()) {
+                    send_dataTransaction();
+                    return add_cart();
+                } else {
+                    $('#btn_submit_transaction').click();
+                }
+            }
+            
         });
         
     });

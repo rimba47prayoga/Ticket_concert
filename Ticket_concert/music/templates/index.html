@@ -30,54 +30,42 @@
 
 <div class="container" id="albums-container">
     <div class="title">Albums</div>
+    {% for i in album %}
+    <div class="content-grid">
+        <a class="albums-pict-container">
+            <img src="{% static 'img/GreenDay/albums/' %}{{i.picture}}" title="allbum-name" />
+        </a><h3> {{i.nameapp}} </h3>
+        <p class="album-descriptions">{{i.descriptions}}</p>
+        <div class="button play-icon popup-with-zoom-anim" id="btn_detail_album" data-links="{{i.link_url}}">Details</div>
+    </div>
+    {% endfor %}
 </div>
 <section class="projects" style="padding-top:40px;clear:left;">
-    
+
     <div class="container-fluid" id="music-container">
         <div class="title">Music</div>
+        {% for i in music %}
+        '<div class="project">
+            <div class="row bg-white has-shadow">
+                <div class="left-col col-lg-12 d-flex align-items-center justify-content-between">
+                    <div class="project-title d-flex align-items-center">
+                        <div class="image has-shadow">
+                            <img src="{% static 'img/GreenDay/albums/' %}{{i.picture}}" alt="{{i.picture}}" class="img-fluid">
+                        </div>
+                        <div class="text"><h3 class="h4">{{i.nameapp}}</h3><small>{{i.albums}}</small></div>
+                    </div>
+                    <div class="project-date">
+                        <span class="hidden-sm-down">durations <br />{{i.durations}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
     </div>
 </section>
 <script>
     $(document).ready(function () {
-        var container_album = $('div#albums-container'),
-        container_music = $('div#music-container');
-        function create_separate_album(data) {
-
-            if (data.length > 1) {
-                for (var i = 0; i < data.length; i++) {
-                    var elm = '<div class="content-grid"><a class="albums-pict-container">'
-                    elm += '<img src=' + GD.get_url_albums(data[i].picture) + ' title="allbum-name" /></a><h3>' + data[i].nameapp + '</h3><p class="album-descriptions">' + data[i].descriptions + '</p><div class="button play-icon popup-with-zoom-anim" id="btn_detail_album" data-links="' + data[i].link_url + '">Details</div></div>'
-                    $(elm).appendTo(container_album);
-                }
-            } else {
-                var elm = '<div class="content-grid"><a class="play-icon popup-with-zoom-anim" href="#small-dialog">'
-                elm += '<img src=' + get_url_albums(data[0].picture) + ' title="allbum-name" /></a><h3>' + data[0].nameapp + '</h3><p class="album-descriptions">' + data[0].descriptions + '</p><div class="button play-icon popup-with-zoom-anim" id="btn_detail_album" data-links="' + data[0].link_url + '">Details</div></div>'
-                $(elm).appendTo(container_album);
-            }
-        };
-        function create_separate_music(data) {
-            if (data.length > 1) {
-                for (var i = 0; i < data.length; i++) {
-                    var elm = '<div class="project"><div class="row bg-white has-shadow"><div class="left-col col-lg-12 d-flex align-items-center justify-content-between"><div class="project-title d-flex align-items-center">';
-                    elm += '<div class="image has-shadow"><img src="' + GD.get_url_albums(data[i].picture) + '" alt="' + data[i].picture + '" class="img-fluid"></div><div class="text"><h3 class="h4">' + data[i].nameapp + '</h3><small> ' + data[i].albums + ' </small></div></div>';
-                    elm += '<div class="project-date"><span class="hidden-sm-down">durations <br />' + data[i].durations + '</span></div></div></div></div>';
-                    $(elm).appendTo(container_music);
-                }
-            }
-        };
-        $.ajax({
-            url: 'json/album/',
-            success: function (data) {
-                create_separate_album(data);
-            }
-        });
         GD.handler_album_click();
-        $.ajax({
-            url: 'json/music/',
-            success: function (data) {
-                create_separate_music(data);
-            }
-        })
-    })
+    });
 </script>
 {% endblock %}

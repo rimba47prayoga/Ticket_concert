@@ -198,7 +198,7 @@
     <Content Include="music\templates\SignIn_ajax.html" />
     <Content Include="music\templates\SignIn_render.html" />
     <Content Include="music\templates\SignUp.html" />
-    <Content Include="music\templates\Transaction_form.html" />
+    <Content Include="music\templates\Transaction_info_form.html" />
     <Content Include="requirements.txt" />
   </ItemGroup>
   <ItemGroup>

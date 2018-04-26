@@ -61,13 +61,20 @@ class Event(models.Model):
         if ',' in location:
             location = location.split(',')[0]
             sub_location = self.location.split(',')[1:][0]
+        q_sold = self.ticket_transaction_set.values('quantity')
+        total_sold = 0
+        for i in q_sold:
+            total_sold += i['quantity']
         data = {'idapp':self.idapp,'music_list':music,'location':location,
                 'sub_location':sub_location,
                 'ticket_date':self.ticket_date,
                 'price':self.price,'descriptions':self.descriptions,
+                'available_ticket':self.total_ticket,
+                'total_sold':total_sold,
+                'total_ticket': self.total_ticket + total_sold,
                 'link_url':self.get_absolute_url()}
         if user is not None:
-            is_add = self.ticket_transaction_set.filter(user=user).exists()
+            is_add = self.cart_set.filter(user=user).exists()
             if is_add:
                 data['is_add'] = True
             else:
@@ -81,12 +88,9 @@ class UserProfile(models.Model):
     user = models.OneToOneField('auth.User',on_delete=models.CASCADE)
     picture = models.ImageField(upload_to='User_image/',default='User_image/User-Default.jpg')
 
-
-class Ticket_transaction(models.Model):
+class Transaction_info(models.Model):
     idapp = models.AutoField(primary_key=True)
     user = models.ForeignKey('auth.User',on_delete=models.CASCADE)
-    ticket = models.ForeignKey(Event,on_delete=models.CASCADE)
-    quantity = models.IntegerField()
     no_telp = models.CharField(max_length=15,null=True)
     province = models.CharField(max_length=50,null=True) #provinsi
     code_pos = models.CharField(max_length=10,null=True) 
@@ -94,6 +98,32 @@ class Ticket_transaction(models.Model):
     address = models.TextField(null=True)
     createddate = models.DateTimeField(auto_now_add=True)
     modifieddate = models.DateTimeField(auto_now=True)
+
+class Ticket_transaction(models.Model):
+    idapp = models.AutoField(primary_key=True)
+    user = models.ForeignKey('auth.User',on_delete=models.CASCADE)
+    ticket = models.ForeignKey(Event,on_delete=models.CASCADE)
+    quantity = models.IntegerField()
+    createddate = models.DateTimeField(auto_now_add=True)
+    modifieddate = models.DateTimeField(auto_now=True)
+    
+
+    #def get_checkout_info(self):
+    #    ticket = self.ticket
+    #    return {
+    #        'idapp':self.idapp,
+    #        'location':ticket.location,
+    #        'ticket_date':ticket.ticket_date,
+    #        'quantity':self.quantity,
+    #        'price':str(ticket.price),
+    #        'total_price':str(self.quantity*ticket.price)
+    #        }
+
+class Cart(models.Model):
+    idapp = models.AutoField(primary_key=True)
+    user = models.ForeignKey('auth.User',on_delete=models.CASCADE)
+    quantity = models.IntegerField()
+    ticket = models.ForeignKey(Event,on_delete=models.CASCADE, null=True)
 
     def get_dict(self):
         ticket = self.ticket
@@ -103,6 +133,7 @@ class Ticket_transaction(models.Model):
             location = location.split(',')[0]
             sub_location = self.ticket.location.split(',')[1:][0]
         return {
+            'idapp':self.idapp,
             'location':location,
             'sub_location':sub_location,
             'ticket_date':ticket.ticket_date,
@@ -115,14 +146,10 @@ class Ticket_transaction(models.Model):
         ticket = self.ticket
         return {
             'idapp':self.idapp,
+            'idapp_ticket':self.ticket.idapp,
             'location':ticket.location,
             'ticket_date':ticket.ticket_date,
             'quantity':self.quantity,
             'price':str(ticket.price),
             'total_price':str(self.quantity*ticket.price)
             }
-
-class Cart(models.Model):
-    idapp = models.AutoField(primary_key=True)
-    user = models.ForeignKey('auth.User',on_delete=models.CASCADE)
-    ticket = models.ForeignKey(Event,on_delete=models.CASCADE)

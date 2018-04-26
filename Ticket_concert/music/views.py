@@ -1,17 +1,27 @@
 from django.shortcuts import render
-from music.models import Event, Music, Album, Cart,Ticket_transaction
+from music.models import Event, Music, Album, Cart,Ticket_transaction, Transaction_info
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 from .data_layer.common import decorators
 from django.http import HttpResponse
 from django.contrib.auth import login, authenticate, logout
 from django.shortcuts import render, redirect
+from oauth2_provider.views.generic import ProtectedResourceView
+from django.contrib.auth.models import User
+from django.db.models import F, Sum
+from django.db import transaction
 
-from .forms import SignUpForm, SignInForm, TransactionForm
+from .forms import SignUpForm, SignInForm, Transaction_InfoForm
 
 
 def Home(request):
-    return render(request,'index.html')
+    data_album = Album.objects.all()[:5]
+    album = [i.get_dict() for i in data_album]
+    music = Music.objects.retrieveData()[:4]
+    event = Event.objects.all()[:4]
+    return render(request,'index.html',{'album':album,
+                                        'music':music,
+                                        'event':event})
 
 @decorators.ajax_required
 def get_json_event(request):
@@ -77,6 +87,8 @@ def Event_list(request):
 
 
 def signup(request):
+    if request.user.is_authenticated:
+        return redirect('home')
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
@@ -86,6 +98,8 @@ def signup(request):
             user = authenticate(username=username, password=raw_password)
             login(request, user)
             return redirect('home')
+        else:
+            return HttpResponse('not valid', status=400)
     else:
         form = SignUpForm()
     return render(request, 'signup.html', {'form': form})
@@ -115,12 +129,11 @@ def signin(request): # users will login with their Email & Password
                     template_name = 'SignIn_ajax.html'
                 return render(request, template_name, {"form":form})
 
-from oauth2_provider.views.generic import ProtectedResourceView
+
 class ApiEndpoint(ProtectedResourceView):
     def get(self, request, *args, **kwargs):
         return HttpResponse('Hello, OAuth2!')
 
-from django.contrib.auth.models import User
 def get_user_profile(request,username):
     user = User.objects.get(username=username)
     return HttpResponse(json.dumps({'username':user.username,'first_name':user.first_name,'password':user.password}),content_type='application/json')
@@ -132,13 +145,36 @@ def signout(request): # logs out the logged in users
         logout(request)
         return redirect("home")
 
-def add_cart(request):
+def GD_TransactionInfo_add(request):
+    form = Transaction_InfoForm(request.POST)
+    if form.is_valid():
+        data = getForm_data(request,form)
+        print('form valid')
+        trans = Transaction_info.objects.create(user=data['user'],
+                                            no_telp=data['no_telp'],province=data['province'],city=data['city'],
+                                            code_pos=data['code_pos'],address=data['address'])
+        return HttpResponse(json.dumps({'message':'success'}),content_type='application/json')
+
+def GD_TransactionInfo(request):
+    idapp_ticket = request.GET['idapp']
+    form = Transaction_InfoForm()
+    context = {}
+    transaction_data = Transaction_info.objects.values('idapp','province','city','code_pos','address').filter(user=request.user.id)
+    if transaction_data.exists():
+        context['transaction_data'] = transaction_data
+        form.display = 'none'
+    context['form'] = form
+    form.fields['ticket_idapp'].initial = idapp_ticket
+    return render(request,'Transaction_info_form.html',context)
+
+
+def GD_Cart_add(request):
     if request.method == 'POST':
-        ticket_id = request.POST['ticket']
+        ticket_id = request.POST['ticket_idapp']
         username = request.user.username
         user = User.objects.get(username=username)
         ticket = Event.objects.get(idapp=ticket_id)
-        cart = Cart.objects.create(ticket=ticket,user=user)
+        cart = Cart.objects.create(ticket=ticket,user=user,quantity=request.POST['quantity'])
         return HttpResponse(json.dumps({'message':'success','idapp':ticket_id}),content_type='application/json')
 
 def getForm_data(request,form):
@@ -154,33 +190,48 @@ def getForm_data(request,form):
         'address':clData['address']
         }
 
-def GD_Transaction(request):
-    if request.method == 'POST':
-        form = TransactionForm(request.POST)
-        if form.is_valid():
-            data = getForm_data(request,form)
-            Ticket_transaction.objects.create(user=data['user'],ticket=data['ticket'],quantity=data['quantity'],
-                                              no_telp=data['no_telp'],province=data['province'],city=data['city'],
-                                              address=data['address'])
-            return HttpResponse(json.dumps({'message':'success','idapp':data['ticket'].idapp}),content_type='application/json')
-    elif request.method == 'GET':
-        idapp_ticket = request.GET['idapp']
-        form = TransactionForm()
-        form.fields['ticket_idapp'].initial = idapp_ticket
-        return render(request,'Transaction_form.html',{'form':form})
 
 @login_required
 def GD_Cart(request):
-    ticket_data = Ticket_transaction.objects.filter(user=request.user.id)
-    ticket = [i.get_dict() for i in ticket_data]
-    return render(request,'Cart_list.html',{'ticket':ticket})
+    cart_data = Cart.objects.filter(user=request.user.id)
+    cart = [i.get_dict() for i in cart_data]
+    return render(request,'Cart_list.html',{'cart':cart})
 
-from django.db.models import F, Sum
+
 def GD_Checkout_list(request):
-    ticket_data = Ticket_transaction.objects.filter(user=request.user.id)
+    ticket_data = Cart.objects.filter(user=request.user.id)
     ticket = [i.get_checkout_info() for i in ticket_data]
     return render(request,'Checkout_list.html',{'ticket':ticket})
 
+
 def GD_Checkout_confirm(request):
-    address = Ticket_transaction.objects.filter(user=request.user.id).values('province','city','code_pos','address')
-    return render(request,'Checkout_confirm_address.html',{'address':address})
+    if request.method == 'GET':
+        address = Transaction_info.objects.filter(user=request.user.id).values('province','city','code_pos','address')
+        return render(request,'Checkout_confirm_address.html',{'address':address})
+    elif request.method == 'POST':
+        idapp = request.POST['idapp']
+        idapp_ticket = request.POST['idapp_ticket']
+        quantity = request.POST['quantity']
+        with transaction.atomic():
+            if ',' in idapp:
+                idapp = idapp.split(',')
+                idapp_ticket = idapp_ticket.split(',')
+                quantity = quantity.split(',')
+                for i in range(len(idapp_ticket)):
+                    ticket=Event.objects.get(idapp=idapp_ticket[i])
+                    ticket.total_ticket = ticket.total_ticket - int(quantity[i])
+                    ticket.save()
+                    Ticket_transaction.objects.create(user=User.objects.get(id=request.user.id),
+                                                      ticket=ticket,
+                                                      quantity=quantity[i])
+                Cart.objects.filter(idapp__in=idapp).delete()
+            else:
+                ticket=Event.objects.get(idapp=idapp_ticket)
+                ticket.total_ticket = ticket.total_ticket - int(quantity)
+                ticket.save()
+                Ticket_transaction.objects.create(user=User.objects.get(id=request.user.id),
+                                                      ticket=Event.objects.get(idapp=idapp_ticket),
+                                                      quantity=quantity)
+                Cart.objects.filter(idapp=idapp).delete()
+        return HttpResponse(json.dumps({'message':'success','idapp':idapp}),content_type='application/json')
+        
