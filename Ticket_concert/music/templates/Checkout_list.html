@@ -3,7 +3,7 @@
     <div class="card-body no-padding">
         {% for i in ticket %}
         <div class="item d-flex">
-            <input type="checkbox" class="checkbox-template" data-idapp="{{i.idapp}}" data-value="{{i.total_price}}" id="checkbox-ticket" data-idappticket="{{i.idapp_ticket}}" data-quantity="{{i.quantity}}">
+            <input type="checkbox" class="checkbox-template" data-idappcart="{{i.idapp}}" data-value="{{i.total_price}}" id="checkbox-ticket" data-idappticket="{{i.idapp_ticket}}" data-quantity="{{i.quantity}}">
             <label class="checkout-info-label">
                 <p class="checkout-info-ticket col-md-9">
                     Green Day in {{i.location}}

@@ -103,21 +103,12 @@ class Ticket_transaction(models.Model):
     idapp = models.AutoField(primary_key=True)
     user = models.ForeignKey('auth.User',on_delete=models.CASCADE)
     ticket = models.ForeignKey(Event,on_delete=models.CASCADE)
+    info = models.ForeignKey(Transaction_info,on_delete=models.CASCADE,null=True)
     quantity = models.IntegerField()
+    total_purchase = models.IntegerField(null=True)
     createddate = models.DateTimeField(auto_now_add=True)
     modifieddate = models.DateTimeField(auto_now=True)
-    
 
-    #def get_checkout_info(self):
-    #    ticket = self.ticket
-    #    return {
-    #        'idapp':self.idapp,
-    #        'location':ticket.location,
-    #        'ticket_date':ticket.ticket_date,
-    #        'quantity':self.quantity,
-    #        'price':str(ticket.price),
-    #        'total_price':str(self.quantity*ticket.price)
-    #        }
 
 class Cart(models.Model):
     idapp = models.AutoField(primary_key=True)

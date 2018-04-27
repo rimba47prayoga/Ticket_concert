@@ -18,7 +18,8 @@ from django.urls import path, include
 from music.views import Home, get_json_event, get_json_music, \
     get_json_album, Album_view,Album_list,Music_list, Event_list,\
     Event_view,signup,signin, ApiEndpoint, get_user_profile, signout,\
-    GD_Cart_add, GD_Cart,GD_Checkout_list,GD_Checkout_confirm,GD_TransactionInfo,GD_TransactionInfo_add
+    GD_Cart_add, GD_Cart,GD_Checkout_list,GD_Checkout_confirm,GD_TransactionInfo,\
+    GD_TransactionInfo_add,GD_Cart_edit,GD_Cart_remove, signup_check_exists
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -32,6 +33,7 @@ urlpatterns = [
     path('event/<int:pk>/',Event_view,name='event_view'),
     path('event/list/',Event_list,name='event_list'),
     path('signup/',signup,name='signup'),
+    path('signup/check-exists/',signup_check_exists),
     path('signin/',signin,name='signin'),
     path('signout/',signout,name='signout'),
     path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
@@ -39,12 +41,17 @@ urlpatterns = [
     path('api/hello', ApiEndpoint.as_view()),  # an example resource endpoint
 
     path('cart/add/',GD_Cart_add,name='add_cart'),
+    path('cart/edit/',GD_Cart_edit,name='edit_cart'),
+    path('cart/remove/',GD_Cart_remove,name='remove_cart'),
     path('transactions/add/',GD_TransactionInfo_add,name='add_transaction'),
-    path('transactions/info/',GD_TransactionInfo,name='add_transaction'),
+    path('transactions/info/',GD_TransactionInfo,name='info_transaction'),
 
 
     path('cart/list/',GD_Cart,name='cart_list'),
 
     path('checkout/list/',GD_Checkout_list),
-    path('checkout/confirm/',GD_Checkout_confirm)
+    path('checkout/confirm/',GD_Checkout_confirm),
+
+    #============= Api Urls ============
+    path('api/',include('api.urls'),name='api')
 ]

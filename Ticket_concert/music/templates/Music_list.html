@@ -25,17 +25,53 @@
         <div class="project">
             <div class="row bg-white has-shadow">
                 <div class="left-col col-lg-12 d-flex align-items-center justify-content-between">
-                <div class="project-title d-flex align-items-center">
-                    <div class="image has-shadow"><img src="{% static 'img/GreenDay/albums/' %}{{i.picture}}" alt="{{i.picture}}" class="img-fluid"></div>
-                    <div class="text">
-                    <h3 class="h4">{{i.nameapp}}</h3><small>{{i.albums}}</small>
+                    <div class="project-title d-flex align-items-center">
+                        <div class="image has-shadow"><img src="{% static 'img/GreenDay/albums/' %}{{i.picture}}" alt="{{i.picture}}" class="img-fluid"></div>
+                        <div class="text">
+                            <h3 class="h4">{{i.nameapp}}</h3><small>{{i.albums}}</small>
+                        </div>
                     </div>
-                </div>
-                <div class="project-date"><span class="hidden-sm-down">durations <br />{{i.durations}}</span></div>
+                    <div class="project-date"><span class="hidden-sm-down">durations <br />{{i.durations}}</span></div>
                 </div>
             </div>
         </div>
         {% endfor %}
+
+        <nav aria-label="..." style="margin-top: 30px;">
+            <ul class="pagination" style="margin: 0;position: absolute;left: 50%;transform: translate(-50%, -50%);">
+                {% if music.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ music.previous_page_number }}">Previous</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Previous</span>
+                </li>
+                {% endif %}
+                {% for i in music.paginator.page_range %}
+                {% if music.number == i %}
+                <li class="page-item active">
+                    <span class="page-link">
+                        {{ i }}
+                        <span class="sr-only">(current)</span>
+                    </span>
+                </li>
+                {% else %}
+                <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                {% endif %}
+                {% endfor %}
+
+                {% if music.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ music.next_page_number }}">Next</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Next</span>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
     </div>
 </section>
 {% endblock %}

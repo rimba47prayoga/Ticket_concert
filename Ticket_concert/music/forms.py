@@ -9,20 +9,12 @@ class SignUpForm(forms.Form):
         'class':'form-control','placeholder':'Last Name'}))
     username = forms.CharField(max_length=30, required=True,widget=forms.TextInput(attrs={
         'class':'form-control','placeholder':'User Name'}))
-    email = forms.EmailField(max_length=254,required=True, help_text='Required. Inform a valid email address.',widget=forms.TextInput(attrs={
+    email = forms.CharField(max_length=254,required=True, help_text='Required. Inform a valid email address.',widget=forms.EmailInput(attrs={
         'class':'form-control','placeholder':'Email'}))
     password1 = forms.CharField(max_length=30, required=True,widget=forms.PasswordInput(attrs={
         'class':'form-control','placeholder':'Password'}))
     password2 = forms.CharField(max_length=30, required=True,widget=forms.PasswordInput(attrs={
         'class':'form-control','placeholder':'Confirm Password'}))
-
-    def save(self, commit=True):
-        user = User.objects.create_user(first_name=self.cleaned_data['first_name'],
-                                        last_name=self.cleaned_data['last_name'],
-                                        username=self.cleaned_data['username'],
-                                        email=self.cleaned_data['email'],
-                                        password=self.cleaned_data['password1'])
-        return user
 
 class SignInForm(forms.Form):
     username = forms.CharField(max_length=30,required=True,widget=forms.TextInput(attrs={

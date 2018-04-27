@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'music',
     'oauth2_provider',
     'corsheaders',
+    'rest_framework'
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -142,7 +143,7 @@ STATIC_URL = '/static/'
 
 STATIC_ROOT = posixpath.join(*(BASE_DIR.split(os.path.sep) + ['static']))
 
-MEDIA_URL = os.path.join(BASE_DIR, 'static/img/')
+MEDIA_URL = '/static/img/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'music/static/img/')
 

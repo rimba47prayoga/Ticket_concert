@@ -1,4 +1,6 @@
 ﻿{% extends 'layout.html' %}
+{% block sitemap %} > Cart > list
+{% endblock %}
 {% block content %}
 <style>
     div.card-body td {
@@ -45,8 +47,8 @@
     {% for i in cart %}
     <div class="card" data-idapp="{{i.idapp}}" id="container-ticket">
         <div class="card-close">
-            <a href="#" style="color:#ffc107;margin-right:20px;"> <i class="fa fa-pencil"> </i> Edit</a>
-            <a href="#"> <i class="fa fa-times"> </i> Remove</a>
+            <a href="#" style="color:#ffc107;margin-right:20px;" id="edit_cart"> <i class="fa fa-pencil"> </i> Edit</a>
+            <a href="#" id="remove_cart"> <i class="fa fa-times"> </i> Remove</a>
         </div>
         <div class="card-header d-flex align-items-center">
             <h3 class="h4">Green Day in {{i.location}}</h3>
@@ -71,14 +73,17 @@
                                 <p>{{i.descriptions}}</p>
 
                             </td>
-                            <td>{{i.quantity}}</td>
-                            <td>{{i.price}}</td>
-                            <td>{{i.total_price}}</td>
+                            <td><p id="quantity">{{i.quantity}}</p><input type="number" class="form-control" value="{{i.quantity}}" style="width:100px;display:none;" id="quantity_input" data-value="{{i.quantity}}" /></td>
+                            <td><p id="price">{{i.price}}</p></td>
+                            <td><p id="total_price">{{i.total_price}}</p></td>
                         </tr>
                     </tbody>
                 </table>
             </div>
+            <button type="button" class="btn btn-primary" style="float:right;display:none;" id="btn_ok_edit">OK</button>
+        <button type="button" class="btn btn-secondary" style="float:right;margin-right:25px;display:none;" id="btn_cancel_edit">Cancel</button>
         </div>
+        
     </div>
     {% endfor %}
     <div class="card" style="display:inline-block;float:right">
@@ -98,24 +103,119 @@
     $(document).ready(function () {
         function getCheckedBoxes(Class) {
             var checkboxes = document.querySelectorAll(Class);
-            var idapp = [];
             var idapp_ticket = [];
+            var idapp_cart = [];
             var quantity = []
             for (var i = 0; i < checkboxes.length; i++) {
                 if (checkboxes[i].checked) {
-                    idapp.push(checkboxes[i].dataset.idapp);
+                    idapp_cart.push(checkboxes[i].dataset.idappcart);
                     idapp_ticket.push(checkboxes[i].dataset.idappticket);
                     quantity.push(checkboxes[i].dataset.quantity);
                 }
             }
             return {
-                'idapp': String(idapp),
+                'idapp_cart':String(idapp_cart),
                 'idapp_ticket': String(idapp_ticket),
                 'quantity': String(quantity)
             }
         }
+        function getRadioValue(selector) {
+            var radio = document.querySelectorAll(selector);
+            var idapp = [];
+            for (var i = 0; i < radio.length; i++) {
+                if (radio[i].checked) {
+                    idapp.push(radio[i].dataset.idapp);
+                }
+            };
+            return {
+                'idapp':String(idapp)
+            }
+        }
 
-        
+        $('a#edit_cart').click(function (event) {
+            event.preventDefault();
+            var card_close = $(this).parent()
+            var card_body = card_close.next().next()
+            var p_quantity = card_body.find('p#quantity');
+            var input_quantity = card_body.find('input#quantity_input')
+            p_quantity.css('display', 'none');
+            input_quantity.css('display', 'block');
+            card_body.find('button#btn_ok_edit,button#btn_cancel_edit').css('display', 'block');
+        });
+
+        $('a#remove_cart').click(function (event) {
+            event.preventDefault();
+            var container_ticket = $(this).parents('#container-ticket')
+            var idapp = container_ticket[0].dataset.idapp
+            $.ajax({
+                url: '/cart/remove/',
+                method: 'POST',
+                beforeSend: function (xhr, settings) {
+                    xhr.setRequestHeader('X-CSRFToken', GD.get_csrf())
+                },
+                data: {
+                    'idapp':idapp
+                },
+                success: function (data) {
+                    if (data['message'] == 'success') {
+                        container_ticket.fadeOut();
+                        container_ticket.remove();
+                    }
+                    
+                }
+            });
+        });
+
+        $('button#btn_ok_edit').click(function () {
+            var card_body = $(this).parent()
+            var el_qty_input = card_body.find('input#quantity_input');
+            var el_qty_p = card_body.find('p#quantity');
+            if (el_qty_input.val() == el_qty_input[0].dataset.value) {
+                return card_body.find('button#btn_cancel_edit').click();
+            } else {
+                var el_price = card_body.find('p#price');
+                var el_total_price = card_body.find('p#total_price');
+                var btn_ok = $(this)
+                var btn_cancel = card_body.find('button#btn_cancel_edit')
+                $.ajax({
+                    url: '/cart/edit/',
+                    method: 'POST',
+                    beforeSend: function (xhr, settings) {
+                        xhr.setRequestHeader('X-CSRFToken', GD.get_csrf())
+                    },
+                    data: {
+                        'idapp':card_body.parent()[0].dataset.idapp,
+                        'quantity': el_qty_input.val()
+                    },
+                    success: function (data) {
+                        if (data['message'] == 'success') {
+                            el_qty_input.css('display', 'none');
+                            el_qty_input.val(data['quantity']);
+                            el_qty_input[0].dataset.value = data['quantity'];
+                            el_qty_p.text(data['quantity']);
+                            el_qty_p.css('display', 'block');
+                            el_price.text(data['price']);
+                            el_total_price.text(data['total_price']);
+                            btn_ok.css('display', 'none');
+                            btn_cancel.css('display', 'none');
+                        }
+                    }
+                });
+            }
+            
+        });
+
+        $('button#btn_cancel_edit').click(function () {
+            var card_body = $(this).parent()
+            var el_qty_input = card_body.find('input#quantity_input');
+            var el_qty_p = card_body.find('p#quantity');
+            var ori_qty = el_qty_input[0].dataset.value;
+            el_qty_input.val(ori_qty);
+            el_qty_input.css('display', 'none');
+            el_qty_p.css('display', 'block');
+            $(this).css('display', 'none');
+            card_body.find('button#btn_ok_edit').css('display', 'none');
+        });
 
 
         $('button#checkout').click(function () {
@@ -170,7 +270,7 @@
                     beforeSend: function (xhr, settings) {
                         xhr.setRequestHeader('X-CSRFToken', GD.get_csrf())
                     },
-                    data:  getCheckedBoxes('#checkbox-ticket'),
+                    data: GD.AssignObject(getCheckedBoxes('#checkbox-ticket'), getRadioValue('input#info-address')),
                     success: function (data) {
                         if (data['message'] == 'success') {
                             var dialog_confirm = $('#modal-checkout-confirm')
@@ -178,11 +278,11 @@
                             dialog_confirm.next().find('#btn_ok_confirm_address,#btn_cancel_confirm_address').css('display', 'none')
                             if (typeof data['idapp'] == "object") {
                                 for (var i = 0; i < data['idapp'].length; i++) {
-                                    $('input#checkbox-ticket[data-idapp="' + data['idapp'][i] + '"]').parent().remove()
+                                    $('input#checkbox-ticket[data-idappcart="' + data['idapp'][i] + '"]').parent().remove()
                                     $('div#container-ticket[data-idapp="' + data['idapp'][i] + '"]').remove();
                                 }
                             } else {
-                                $('input#checkbox-ticket[data-idapp="' + data['idapp'] + '"]').parent().remove();
+                                $('input#checkbox-ticket[data-idappcart="' + data['idapp'] + '"]').parent().remove();
                                 $('div#container-ticket[data-idapp="' + data['idapp'] + '"]').remove();
                             }
                             $('p#total_purchase').text('0')

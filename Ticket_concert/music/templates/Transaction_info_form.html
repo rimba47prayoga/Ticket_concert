@@ -36,6 +36,7 @@
     {{form.ticket_idapp}}
     <input type="submit" value="Sign In" class="btn btn-primary" style="display:none" id="btn_submit_transaction">
 </form>
+{% if transaction_data %}
 <div id="current-address">
     <div style="text-align:right;"><a href="#" id="add_other_address">Add other address > </a></div>
     {% for i in transaction_data %}
@@ -65,3 +66,4 @@
         $('a#back_address').parent().css('display', 'none');
     });
 </script>
+{% endif %}

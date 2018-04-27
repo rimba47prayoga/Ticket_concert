@@ -3,4 +3,4 @@ class Music_BR_Manager(Manager):
     def retrieveData(self):
         data = super(Music_BR_Manager,self).get_queryset()
         return data.annotate(albums=F('album__nameapp'),
-                             picture=F('album__picture')).values('nameapp','albums','durations','picture')
+                             picture=F('album__picture')).values('nameapp','albums','durations','picture').order_by('idapp')

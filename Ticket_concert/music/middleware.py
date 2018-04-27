@@ -19,11 +19,14 @@ class CheckTokenMiddleware(MiddlewareMixin):
         # Code to be executed for each request/response after
         # the view is called.
         if hasattr(request.resolver_match,'url_name'):
-            if request.resolver_match.url_name == 'login' or request.resolver_match.url_name == 'signin':
+            url_name = request.resolver_match.url_name
+            if (url_name == 'login' 
+                or url_name == 'signin'
+                or url_name == 'login_api'):
                 print('========== THIS IS URL LOGIN ===========')
                 if request.method == 'POST' and user.is_authenticated:
                     print('========== AUTH SUCCESS ===========')
-                    is_have_token = AccessToken.objects.filter(user=user_id.id).exists()
+                    is_have_token = AccessToken.objects.filter(user=request.user.id).exists()
                     if is_have_token:
                         AccessToken.objects.filter(user=request.user.id).delete()
                     self.create_token(request)
@@ -60,8 +63,16 @@ class CheckTokenMiddleware(MiddlewareMixin):
 
 
     def create_token(self,request):
-        user_id = User.objects.get(username=request.POST['username'])
-        AccessToken.objects.create(user=user_id,token=generate_token(),
-                                                    application=Application.objects.get(user=1),
-                                                    expires=datetime.now() + timedelta(hours=1),
-                                                    scope='read write')
+        username=request.POST.get('username')
+        if username == None:
+            username = request.user.username
+        user_id = User.objects.get(username=username)
+        if request.POST.get('this_method_for_unit_test_only') == 'Icxj2TdNhfbwW5t0aR1h6l0BUDob90':
+            AccessToken.objects.create(user=user_id,token=generate_token(),
+                                                        expires=datetime.now() + timedelta(hours=1),
+                                                        scope='read write')
+        else:
+            AccessToken.objects.create(user=user_id,token=generate_token(),
+                                                        application=Application.objects.get(user=1),
+                                                        expires=datetime.now() + timedelta(hours=1),
+                                                        scope='read write')

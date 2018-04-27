@@ -93,6 +93,12 @@ img.relatif {
     }
 }
 
+@media (max-width:800px) {
+    div#albums-container h3 {
+        font-size:15px;
+    }
+}
+
 
 /*=========== For User Handler ==============*/
 
@@ -105,7 +111,17 @@ ul#container-user-profile li a[aria-expanded="false"]::before {
 }
 
 /* ========== For ticket event ============*/
-
+.stock-ticket {
+        width:31%;
+        display:inline-block;
+        font-size:15px;
+    }
+    .container-stock-ticket {
+        margin:0;
+    }
+    p#added {
+        font-size:15px;
+    }
 
  time {
 	display: inline-block;
@@ -152,3 +168,17 @@ p.checkout-info-ticket {
 .item.d-flex.address input[type="radio"] {
     margin: 5px 5px 12px 10px;
 }
+
+  .profile-circle { 
+      width: 55px; 
+      height: 54px; 
+      background-size: cover; 
+      background-repeat: no-repeat; 
+      background-position: center center; 
+      -webkit-border-radius: 99px; 
+      -moz-border-radius: 99px; 
+      border-radius: 99px; 
+      border: 1px solid #eee; 
+      vertical-align: middle; 
+      cursor:pointer;
+  }

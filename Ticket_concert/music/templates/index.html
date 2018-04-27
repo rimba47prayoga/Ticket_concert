@@ -9,13 +9,13 @@
     </ol>
     <div class="carousel-inner">
         <div class="carousel-item active">
-            <img class="d-block w-100" src="{% static 'img/GreenDay/GD_Banner_1.jpg' %}" alt="First slide">
+            <img class="d-block w-100" src="{% static 'img/GreenDay/GD_Banner_2.jpg' %}" alt="First slide">
         </div>
         <div class="carousel-item">
-            <img class="d-block w-100" src="{% static 'img/GreenDay/GD_Banner_2.jpg' %}" alt="Second slide">
+            <img class="d-block w-100" src="{% static 'img/GreenDay/GD_Banner_3.jpg' %}" alt="Second slide">
         </div>
         <div class="carousel-item">
-            <img class="d-block w-100" src="{% static 'img/GreenDay/GD_Banner_3.jpg' %}" alt="Third slide">
+            <img class="d-block w-100" src="{% static 'img/GreenDay/GD_Banner_1.jpg' %}" alt="Third slide">
         </div>
     </div>
     <a class="carousel-control-prev" href="#GreenDay_slide" role="button" data-slide="prev">
@@ -26,6 +26,13 @@
         <span class="carousel-control-next-icon" aria-hidden="true"></span>
         <span class="sr-only">Next</span>
     </a>
+</div>
+
+<div class="container-fluid">
+    <p style="padding:25px">
+    <b>Green Day</b> is an American <a href="https://en.wikipedia.org/wiki/Punk_rock" title="Punk rock">punk rock</a> band formed in 1986 by lead vocalist and guitarist <a href="https://en.wikipedia.org/wiki/Billie_Joe_Armstrong" title="Billie Joe Armstrong">Billie Joe Armstrong</a> and bassist <a href="https://en.wikipedia.org/wiki/Mike_Dirnt" title="Mike Dirnt">Mike Dirnt</a>. For much of the band's career, they have been a trio with drummer <a href="https://en.wikipedia.org/wiki/Tr%C3%A9_Cool" title="Tré Cool">Tré Cool</a>, who replaced <a href="https://en.wikipedia.org/wiki/John_Kiffmeyer" title="John Kiffmeyer">John Kiffmeyer</a> in 1990 prior to the recording of the band's second studio album, <i><a href="https://en.wikipedia.org/wiki/Kerplunk_(album)" title="Kerplunk (album)">Kerplunk</a></i> (1991). Guitarist <a href="https://en.wikipedia.org/wiki/Jason_White_(musician)" title="Jason White (musician)">Jason White</a>, who has been a touring member since 1999, was an official member from 2012 to 2016.
+        Green Day was originally part of the punk scene at the DIY 924 Gilman Street club in Berkeley, California. The band's early releases were with the independent record label Lookout! Records. In 1994, their major label debut Dookie, released through Reprise Records, became a breakout success and eventually shipped over 10 million copies in the U.S. Green Day is credited alongside fellow California punk bands including Sublime, Bad Religion, The Offspring and Rancid with popularizing mainstream interest in punk rock in the United States.
+    </p>
 </div>
 
 <div class="container" id="albums-container">
@@ -45,7 +52,7 @@
     <div class="container-fluid" id="music-container">
         <div class="title">Music</div>
         {% for i in music %}
-        '<div class="project">
+        <div class="project">
             <div class="row bg-white has-shadow">
                 <div class="left-col col-lg-12 d-flex align-items-center justify-content-between">
                     <div class="project-title d-flex align-items-center">
@@ -63,6 +70,50 @@
         {% endfor %}
     </div>
 </section>
+<section class="projects" style="padding-top:40px;clear:left;">
+
+    <div class="container-fluid" id="music-container">
+        <div class="title">Events</div>
+        {% for i in event %}
+        <div class="recent-activities card">
+            <div class="card-body no-padding">
+                <div class="item">
+                    <div class="row">
+                        <div class="col-2 date-holder text-right">
+                            <time datetime="2014-07-20 2000">
+				                <span class="day">{{ i.ticket_date|date:"d" }}</span>
+				                <span class="month">{{ i.ticket_date|date:"N" }}</span>
+				                <span class="year">{{ i.ticket_date|date:"Y" }}</span>
+				                <span class="time">8:00 PM</span>
+			                </time>
+                        </div>
+                        <div class="col-10 content">
+                            <h5 style="display:inline-block">Green Day at {{i.location}} , {{i.sub_location}}</h5>
+                            <div style="float:right" data-parent="{{i.idapp}}">
+                                {% if i.is_add %}
+                                <p id="added" data-idapp="{{i.idapp}}">In Cart<i class="fa fa-check"></i></p>
+                                {% else %}
+                                <a href="#" id="add_to_cart" data-idapp="{{i.idapp}}" data-toggle="modal" data-target="#cart-add">Add to Cart <i class="fa fa-shopping-cart"></i></a>
+                                {% endif %}
+                            </div>
+                            <p style="width:80%;">{{i.descriptions}}</p>
+                            <div>
+                                <ul class="container-stock-ticket">
+					                <li class="stock-ticket">Sold : {{i.total_sold}}</li>
+					                <li class="stock-ticket">Available : {{i.available_ticket}} </li>
+					                <li class="stock-ticket">Total ticket : {{i.total_ticket}} </li>
+				                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+
 <script>
     $(document).ready(function () {
         GD.handler_album_click();

@@ -229,6 +229,17 @@ $(document).ready(function () {
                         break;
                     }
                 }
+            },
+            AssignObject: function () {
+                var resObj = {};
+                for (var i = 0; i < arguments.length; i++) {
+                    var obj = arguments[i],
+                        keys = Object.keys(obj);
+                    for (var j = 0; j < keys.length; j++) {
+                        resObj[keys[j]] = obj[keys[j]];
+                    }
+                }
+                return resObj; //result Object
             }
         }
         

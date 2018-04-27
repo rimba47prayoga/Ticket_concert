@@ -28,42 +28,43 @@
     <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
     <script src="{% static 'js/front.js' %}"></script>
   </head>
-  <body>
+<body>
     <div class="page">
-      <!-- Main Navbar-->
-      <header class="header">
-        <nav class="navbar">
-          <!-- Search Box-->
-          <div class="search-box">
-            <button class="dismiss"><i class="icon-close"></i></button>
-            <form id="searchForm" action="#" role="search">
-              <input type="search" placeholder="What are you looking for..." class="form-control">
-            </form>
-          </div>
-          <div class="container-fluid">
-            <div class="navbar-holder d-flex align-items-center justify-content-between">
-              <!-- Navbar Header-->
-              <div class="navbar-header">
-                <!-- Navbar Brand --><a href="{% url 'home' %}" class="navbar-brand">
-                  <div class="brand-text brand-big"><span><strong style="color:#ed1c24">Green</strong> Day </span></div>
-                  <div class="brand-text brand-small"><strong style="color:#ed1c24">G</strong><strong>D</strong></div></a>
-                <!-- Toggle Button--><a id="toggle-btn" href="#" class="menu-btn active"><span></span><span></span><span></span></a>
-              </div>
-              <!-- Navbar Menu -->
-              <ul class="nav-menu list-unstyled d-flex flex-md-row align-items-md-center">
-                <!-- Search-->
-                <li class="nav-item d-flex align-items-center"><a id="search" href="#"><i class="fa fa-search"></i></a></li>
-                <!-- Logout    -->
-                {% if request.user.is_authenticated %}
-                <li class="nav-item"><a href="{% url 'signout' %}" class="nav-link logout">Sign out<i class="fa fa-sign-out"></i></a></li>
-                {% else %}
-                <li class="nav-item"><a id="signIn" href="#" class="nav-link logout" data-toggle="modal" data-target="#signIn-dialog">Sign in<i class="fa fa-sign-in"></i></a></li>
-                {% endif %}
-              </ul>
-            </div>
-          </div>
-        </nav>
-      </header>
+        <!-- Main Navbar-->
+        <header class="header">
+            <nav class="navbar">
+                <!-- Search Box-->
+                <div class="search-box">
+                    <button class="dismiss"><i class="icon-close"></i></button>
+                    <form id="searchForm" action="#" role="search">
+                        <input type="search" placeholder="What are you looking for..." class="form-control">
+                    </form>
+                </div>
+                <div class="container-fluid">
+                    <div class="navbar-holder d-flex align-items-center justify-content-between">
+                        <!-- Navbar Header-->
+                        <div class="navbar-header">
+                            <!-- Navbar Brand --><a href="{% url 'home' %}" class="navbar-brand">
+                                <div class="brand-text brand-big"><span><strong style="color:#ed1c24">Green</strong> Day </span></div>
+                                <div class="brand-text brand-small"><strong style="color:#ed1c24">G</strong><strong>D</strong></div>
+                            </a>
+                            <!-- Toggle Button--><a id="toggle-btn" href="#" class="menu-btn active"><span></span><span></span><span></span></a>
+                        </div>
+                        <!-- Navbar Menu -->
+                        <ul class="nav-menu list-unstyled d-flex flex-md-row align-items-md-center">
+                            <!-- Search-->
+                            <li class="nav-item d-flex align-items-center"><a id="search" href="#"><i class="fa fa-search"></i></a></li>
+                            <!-- Logout    -->
+                            {% if request.user.is_authenticated %}
+                            <li class="nav-item"><a href="{% url 'signout' %}" class="nav-link logout">Sign out<i class="fa fa-sign-out"></i></a></li>
+                            {% else %}
+                            <li class="nav-item"><a id="signIn" href="#" class="nav-link logout" data-toggle="modal" data-target="#signIn-dialog">Sign in<i class="fa fa-sign-in"></i></a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </header>
 
         <script>
             $(document).ready(function () {
@@ -74,6 +75,8 @@
                     if (loc.match(/next/) !== null) {
                         var loc1 = loc.match(/next.*/)
                         var result = loc1[0].replace(/next\=/, '')
+                    } else if (loc.test(/signup/)) {
+                        result = '';
                     } else {
                         result = loc.replace('http:\/\/localhost\:8000', '')
                         if (result.match(/\#/)) result = result.replace('\#', '')
@@ -84,7 +87,12 @@
                     $.ajax({
                         url: '/signin/',
                         success: function (data) {
-                            $('div#signin-body').html(data);
+                            if (typeof data == 'object') {
+                                window.location.href = '/'
+                            } else {
+                                $('div#signin-body').html(data);
+
+                            }
                         }
                     });
                 });
@@ -97,11 +105,45 @@
                         url: '/signup/',
                         success: function (data) {
                             $('div#signup-body').html(data);
+                            $('form#signup').on('keydown', function (event) {
+                                if (event.originalEvent.keyCode == 13) {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                    $('button#btn_ok_signup').click();
+                                }
+                            });
                         }
                     });
                 });
                 $('button#btn_ok_signup').click(function () {
-                    $('input#btn_submit_signup').click();
+                    var form = $('form#signup')
+                    if (form.find('input#id_username').val() == "") {
+                        return $('input#btn_submit_signup').click();
+                    } else if (form.find('input#id_email').val() == "" || form.find('input#id_email')[0].validity.valid == false) {
+                        return $('input#btn_submit_signup').click();
+                    } else {
+                        $.ajax({
+                            url: '/signup/check-exists/',
+                            data: {
+                                'username': form.find('input#id_username').val(),
+                                'email': form.find('input#id_email').val()
+                            },
+                            success: function (data) {
+                                if (data['message'] == 'success') {
+                                    $('input#btn_submit_signup').click();
+                                } else {
+                                    if ($('div#signup-body').find('p#message').length == 0) {
+                                        $('div#signup-body').append('<p style="color:red" id="message">' + data['message'] + '</p>')
+                                    } else if ($('div#signup-body').find('p#message').length == 1) {
+                                        $('div#signup-body').find('p#message').text(data['message'])
+                                    }
+
+                                }
+                            }
+                        })
+                    }
+
+
                 });
             });
         </script>
@@ -111,18 +153,18 @@
         <div id="signIn-dialog" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
             <div role="document" class="modal-dialog">
                 <div class="modal-content">
-                <div class="modal-header">
-                    <h4 id="exampleModalLabel" class="modal-title">Sign In</h4>
-                    <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
-                </div>
-                <div class="modal-body" id="signin-body">
-                    <!-- this fields load with ajax -->
-                </div>
-                <div class="modal-footer" style="display:inline-block;">
-                    <button type="button" class="btn btn-primary" style="float:left;" id="signUp"  data-toggle="modal" data-target="#signUp-dialog">Sign Up</button>
-                    <button type="button" class="btn btn-primary" style="float:right;" id="btn_ok_login">OK</button>
-                    <button type="button" data-dismiss="modal" class="btn btn-secondary" style="float:right">Cancel</button>
-                </div>
+                    <div class="modal-header">
+                        <h4 id="exampleModalLabel" class="modal-title">Sign In</h4>
+                        <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+                    </div>
+                    <div class="modal-body" id="signin-body">
+                        <!-- this fields load with ajax -->
+                    </div>
+                    <div class="modal-footer" style="display:inline-block;">
+                        <button type="button" class="btn btn-primary" style="float:left;" id="signUp" data-toggle="modal" data-target="#signUp-dialog">Sign Up</button>
+                        <button type="button" class="btn btn-primary" style="float:right;" id="btn_ok_login">OK</button>
+                        <button type="button" data-dismiss="modal" class="btn btn-secondary" style="float:right">Cancel</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -130,96 +172,104 @@
         <div id="signUp-dialog" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
             <div role="document" class="modal-dialog">
                 <div class="modal-content">
-                <div class="modal-header">
-                    <h4 id="exampleModalLabel" class="modal-title">Sign Up</h4>
-                    <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
-                </div>
-                <div class="modal-body" id="signup-body">
-                    <!-- this fields load with ajax -->
-                </div>
-                <div class="modal-footer" style="display:inline-block;">
-                    <button type="button" class="btn btn-primary" style="float:right;" id="btn_ok_signup">OK</button>
-                    <button type="button" data-dismiss="modal" class="btn btn-secondary" style="float:right">Cancel</button>
-                </div>
+                    <div class="modal-header">
+                        <h4 id="exampleModalLabel" class="modal-title">Sign Up</h4>
+                        <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+                    </div>
+                    <div class="modal-body" id="signup-body">
+                        <!-- this fields load with ajax -->
+                    </div>
+                    <div class="modal-footer" style="display:inline-block;">
+                        <button type="button" class="btn btn-primary" style="float:right;" id="btn_ok_signup">OK</button>
+                        <button type="button" data-dismiss="modal" class="btn btn-secondary" style="float:right">Cancel</button>
+                    </div>
                 </div>
             </div>
         </div>
-        
 
-      <div class="page-content d-flex align-items-stretch"> 
-        <!-- Side Navbar -->
-        <nav class="side-navbar">
-          <!-- Sidebar Header-->
-          <div class="sidebar-header d-flex align-items-center" href="#dropdown-user-profile" aria-expanded="false" data-toggle="collapse">
-            <div class="avatar"><img src="{% static 'img/User_image/User-Default.jpg' %}" alt="..." class="img-fluid rounded-circle"></div>
-            <div class="title">
-              <h1 class="h4">{{request.user.first_name}}</h1>
-              <p>{{ request.user.username }}</p>
-            </div>
-          </div>
-            <ul id="container-user-profile">
-            <li><a href="#dropdown-user-profile" aria-expanded="false" data-toggle="collapse"></a>
-                <ul id="dropdown-user-profile" class="collapse list-unstyled ">
-                <li><a href="#">Page</a></li>
-                <li><a href="#">Page</a></li>
-                <li><a href="#">Page</a></li>
-                </ul>
-            </li>
-            </ul>
-          <!-- Sidebar Navidation Menus--><span class="heading">Main</span>
-            {% with request.resolver_match.url_name as url_name %}
-          <ul class="list-unstyled">
-            <li {% if url_name == 'home' %}class="active"{% endif %}><a href="{% url 'home' %}" class="red-hover"> <i class="fa fa-home"></i>Home </a></li>
-            <li {% if url_name == 'music_list' %}class="active"{% endif %}><a href="{% url 'music_list' %}" class="red-hover"> <i class="fa fa-music"></i>Music List </a></li>
-            <li {% if url_name == 'album_list' %}class="active"{% endif %}><a href="{% url 'album_list' %}" class="red-hover"> <i class="fa fa-id-card"></i>Album List </a></li>
-            <li {% if url_name == 'event_list' %}class="active"{% endif %}><a href="{% url 'event_list' %}" class="red-hover"> <i class="fa fa-ticket"></i>Event List </a></li>
-            <li><a href="#exampledropdownDropdown" aria-expanded="false" data-toggle="collapse" class="red-hover"> <i class="icon-interface-windows"></i>Other menus </a>
-                <ul id="exampledropdownDropdown" class="collapse list-unstyled ">
-                <li><a href="#">Page</a></li>
-                <li><a href="#">Page</a></li>
-                <li><a href="#">Page</a></li>
-                </ul>
-            </li>
-            <li {% if url_name == 'cart_list' %}class="active" {% endif %}><a href="{% url 'cart_list' %}" class="red-hover"> <i class="fa fa-shopping-cart"></i>Cart </a></li>
-          </ul><span class="heading">Extras</span>
-          <ul class="list-unstyled">
-            <li> <a href="#"> <i class="icon-flask"></i>Other Menu </a></li>
-            <li> <a href="#"> <i class="icon-screen"></i>Other Menu </a></li>
-            <li> <a href="#"> <i class="icon-mail"></i>Other Menu </a></li>
-            <li> <a href="#"> <i class="icon-picture"></i>Other Menu </a></li>
-          </ul>
-        
-        </nav>
-        <div class="content-inner">
-          <!-- Page Header-->
-          <header class="page-header">
-            <div class="container-fluid">
-              <h2 class="no-margin-bottom">{% if url_name == 'home' %} Home {% else %}<a href="{% url 'home' %}">Home </a>{% endif %}{% block sitemap %}{% endblock %}</h2>
-            </div>
-          </header>
-        {% endwith %}
-          <!-- Dashboard Counts Section-->
-          {% block content %}
-          {% endblock %}
-          <!-- Page Footer-->
-          <footer class="main-footer">
-            <div class="container-fluid">
-              <div class="row">
-                <div class="col-sm-6">
-                  <p>Your company &copy; 2018-2019</p>
+
+        <div class="page-content d-flex align-items-stretch">
+            <!-- Side Navbar -->
+            <nav class="side-navbar">
+                <!-- Sidebar Header-->
+                <div class="sidebar-header d-flex align-items-center" href="#dropdown-user-profile" aria-expanded="false" data-toggle="collapse">
+                    <div class="avatar">
+                        {% if request.user.userprofile.picture %}
+                        <div class="profile-circle medium" style="background-image:url({% static 'img/' %}{{request.user.userprofile.picture}})"></div>
+                        {% else %}
+                        <img src="{% static 'img/User_image/User-Default.jpg' %}" alt="..." class="img-fluid rounded-circle">
+                        {% endif %}
+                    </div>
+                    <div class="title">
+                        <h1 class="h4">{{request.user.first_name}} {{request.user.last_name}}</h1>
+                        <p>{{ request.user.username }}</p>
+                    </div>
                 </div>
-              </div>
+                <ul id="container-user-profile">
+                    <li>
+                        <a href="#dropdown-user-profile" aria-expanded="false" data-toggle="collapse"></a>
+                        <ul id="dropdown-user-profile" class="collapse list-unstyled ">
+                            <li><a href="#">Profile</a></li>
+                            <li><a href="#">Page</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <!-- Sidebar Navidation Menus--><span class="heading">Main</span>
+                {% with request.resolver_match.url_name as url_name %}
+                <ul class="list-unstyled">
+                    <li {% if url_name == 'home' %} class="active" {% endif %}><a href="{% url 'home' %}" class="red-hover"> <i class="fa fa-home"></i>Home </a></li>
+                    <li {% if url_name == 'music_list' %} class="active" {% endif %}><a href="{% url 'music_list' %}" class="red-hover"> <i class="fa fa-music"></i>Music List </a></li>
+                    <li {% if url_name == 'album_list' %} class="active" {% endif %}><a href="{% url 'album_list' %}" class="red-hover"> <i class="fa fa-id-card"></i>Album List </a></li>
+                    <li {% if url_name == 'event_list' %} class="active" {% endif %}><a href="{% url 'event_list' %}" class="red-hover"> <i class="fa fa-ticket"></i>Event List </a></li>
+                    <li>
+                        <a href="#exampledropdownDropdown" aria-expanded="false" data-toggle="collapse" class="red-hover"> <i class="icon-interface-windows"></i>Other menus </a>
+                        <ul id="exampledropdownDropdown" class="collapse list-unstyled ">
+                            <li><a href="#">Page</a></li>
+                            <li><a href="#">Page</a></li>
+                            <li><a href="#">Page</a></li>
+                        </ul>
+                    </li>
+                    <li {% if url_name == 'cart_list' %} class="active" {% endif %}><a href="{% url 'cart_list' %}" class="red-hover"> <i class="fa fa-shopping-cart"></i>Cart </a></li>
+                </ul><span class="heading">Extras</span>
+                <ul class="list-unstyled">
+                    <li> <a href="#"> <i class="icon-flask"></i>Other Menu </a></li>
+                    <li> <a href="#"> <i class="icon-screen"></i>Other Menu </a></li>
+                    <li> <a href="#"> <i class="icon-mail"></i>Other Menu </a></li>
+                    <li> <a href="#"> <i class="icon-picture"></i>Other Menu </a></li>
+                </ul>
+
+            </nav>
+            <div class="content-inner">
+                <!-- Page Header-->
+                <header class="page-header">
+                    <div class="container-fluid">
+                        <h2 class="no-margin-bottom">{% if url_name == 'home' %} Home {% else %}<a href="{% url 'home' %}">Home </a>{% endif %}{% block sitemap %}{% endblock %}</h2>
+                    </div>
+                </header>
+                {% endwith %}
+                <!-- Dashboard Counts Section-->
+                {% block content %}
+                {% endblock %}
+                <!-- Page Footer-->
+                <footer class="main-footer">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <p>Your company &copy; 2018-2019</p>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
             </div>
-          </footer>
         </div>
-      </div>
     </div>
     <!-- JavaScript files-->
-    
+
     <script src="{% static 'vendor/bootstrap/js/bootstrap.min.js' %}"></script>
     <script src="{% static 'vendor/jquery.cookie/jquery.cookie.js' %}"> </script>
     <script src="{% static 'vendor/jquery-validation/jquery.validate.min.js' %}"></script>
     <!-- Main File-->
-    
-  </body>
+
+</body>
+
 </html>
