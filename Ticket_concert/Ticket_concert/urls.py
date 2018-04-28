@@ -17,9 +17,9 @@ from django.contrib import admin
 from django.urls import path, include
 from music.views import Home, get_json_event, get_json_music, \
     get_json_album, Album_view,Album_list,Music_list, Event_list,\
-    Event_view,signup,signin, ApiEndpoint, get_user_profile, signout,\
+    Event_view,GD_signup,GD_signin, ApiEndpoint, GD_get_user_profile, GD_signout,\
     GD_Cart_add, GD_Cart,GD_Checkout_list,GD_Checkout_confirm,GD_TransactionInfo,\
-    GD_TransactionInfo_add,GD_Cart_edit,GD_Cart_remove, signup_check_exists
+    GD_TransactionInfo_add,GD_Cart_edit,GD_Cart_remove, GD_signup_check_exists, GD_Change_User_Picture
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -32,18 +32,21 @@ urlpatterns = [
     path('music/list/',Music_list,name='music_list'),
     path('event/<int:pk>/',Event_view,name='event_view'),
     path('event/list/',Event_list,name='event_list'),
-    path('signup/',signup,name='signup'),
-    path('signup/check-exists/',signup_check_exists),
-    path('signin/',signin,name='signin'),
-    path('signout/',signout,name='signout'),
+    path('signup/',GD_signup,name='signup'),
+    path('signup/check-exists/',GD_signup_check_exists),
+    path('signin/',GD_signin,name='signin'),
+    path('signout/',GD_signout,name='signout'),
     path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
-    path('users/<str:username>/',get_user_profile),
+    path('users/<str:username>/',GD_get_user_profile, name='user_profile'),
+    path('profile/change_picture/',GD_Change_User_Picture),
+
+
     path('api/hello', ApiEndpoint.as_view()),  # an example resource endpoint
 
     path('cart/add/',GD_Cart_add,name='add_cart'),
     path('cart/edit/',GD_Cart_edit,name='edit_cart'),
     path('cart/remove/',GD_Cart_remove,name='remove_cart'),
-    path('transactions/add/',GD_TransactionInfo_add,name='add_transaction'),
+    path('transactions/info/add/',GD_TransactionInfo_add,name='add_transaction'),
     path('transactions/info/',GD_TransactionInfo,name='info_transaction'),
 
 

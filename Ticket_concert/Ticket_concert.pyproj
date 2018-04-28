@@ -212,6 +212,7 @@
     <Content Include="music\templates\SignIn_render.html" />
     <Content Include="music\templates\SignUp.html" />
     <Content Include="music\templates\Transaction_info_form.html" />
+    <Content Include="music\templates\User_Profile.html" />
     <Content Include="requirements.txt" />
   </ItemGroup>
   <ItemGroup>

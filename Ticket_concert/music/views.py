@@ -3,7 +3,7 @@ from music.models import Event, Music, Album, Cart,Ticket_transaction, Transacti
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 from .data_layer.common import decorators
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
 from django.contrib.auth import login, authenticate, logout
 from django.shortcuts import render, redirect
 from oauth2_provider.views.generic import ProtectedResourceView
@@ -12,13 +12,15 @@ from django.db.models import F, Sum
 from django.db import transaction
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .forms import SignUpForm, SignInForm, Transaction_InfoForm
-from django.db.models.fields.related_descriptors import ForwardManyToOneDescriptor
 
 def Home(request):
     data_album = Album.objects.all()[:5]
     album = [i.get_dict() for i in data_album]
     music = Music.objects.retrieveData()[:4]
-    event = Event.objects.all()[:4]
+    event_separate = Event.objects.all()[:4]
+    event = []
+    for i in event_separate:
+        event.append(i.get_dict_event())
     return render(request,'index.html',{'album':album,
                                         'music':music,
                                         'event':event})
@@ -56,7 +58,6 @@ def Album_view(request,pk):
     if request.is_ajax():
         template = 'Album_view_ajax.html'
     return render(request,template,{'obj':obj,'related_music':related_music})
-    #return HttpResponse(json.dumps(data,cls=DjangoJSONEncoder),content_type='application/json')
 
 def Album_list(request):
     album = Album.objects.all()
@@ -89,7 +90,7 @@ def Event_list(request):
     return render(request,'Event_list.html',{'event':event})
 
 
-def signup(request):
+def GD_signup(request):
     if request.user.is_authenticated:
         return redirect('home')
     if request.method == 'POST':
@@ -113,7 +114,7 @@ def signup(request):
         form = SignUpForm()
     return render(request, 'signup.html', {'form': form})
 
-def signup_check_exists(request):
+def GD_signup_check_exists(request):
     if request.method == 'GET':
         username = request.GET['username']
         email = request.GET['email']
@@ -128,7 +129,7 @@ def signup_check_exists(request):
         else:
             return HttpResponse(json.dumps({'message':'success'}),content_type='application/json')
 
-def signin(request):
+def GD_signin(request):
     if request.user.is_authenticated:
         next = request.GET.get('next')
         if next is not None:
@@ -167,11 +168,26 @@ class ApiEndpoint(ProtectedResourceView):
     def get(self, request, *args, **kwargs):
         return HttpResponse('Hello, OAuth2!')
 
-def get_user_profile(request,username):
-    user = User.objects.get(username=username)
-    return HttpResponse(json.dumps({'username':user.username,'first_name':user.first_name,'password':user.password}),content_type='application/json')
+def GD_get_user_profile(request,username):
+    if request.user.is_authenticated:
+        user_logged_on = request.user.username
+        user = User.objects.filter(username=username)
+        if user.exists():
+            user = user.values('first_name','last_name','username','email')
+        else:
+            return HttpResponse('<h1>404 Not Found</h1>',status=404)
+        if user_logged_on != user[0]['username']:
+            return HttpResponseForbidden('<h1>403 Forbidden</h1>')
+        else:
+            return render(request,'User_Profile.html',{'user':user})
+    else:
+        return HttpResponseForbidden('<h1>403 Forbidden</h1>')
 
-def signout(request): # logs out the logged in users
+def GD_Change_User_Picture(request):
+    print(request.FILES)
+    return HttpResponse(request)
+
+def GD_signout(request): # logs out the logged in users
     if not request.user.is_authenticated:
         return redirect("login")
     else:
@@ -279,13 +295,13 @@ def GD_Checkout_confirm(request):
         user = User.objects.get(id=request.user.id)
         info = Transaction_info.objects.get(idapp=idapp)
         with transaction.atomic():
-            if ',' in idapp:
-                idapp = idapp.split(',')
+            if ',' in idapp_ticket:
                 idapp_ticket = idapp_ticket.split(',')
                 quantity = quantity.split(',')
                 for i in range(len(idapp_ticket)):
                     transaction_add(user,idapp_ticket[i],quantity[i],info)
-                Cart.objects.filter(idapp_cart__in=idapp_cart).delete()
+                idapp_cart = idapp_cart.split(',')
+                Cart.objects.filter(idapp__in=idapp_cart).delete()
             else:
                 transaction_add(user,idapp_ticket,quantity,info)
                 Cart.objects.filter(idapp=idapp_cart).delete()

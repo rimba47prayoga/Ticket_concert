@@ -37,22 +37,18 @@
 			                </time>
                         </div>
                         <div class="col-10 content">
-                            <h5 style="display:inline-block">Green Day at {{i.location}} , {{i.sub_location}}</h5>
+                            <h5 style="display:inline-block;float:left;">Green Day in {{i.location}}</h5>
                             <div style="float:right" data-parent="{{i.idapp}}">
                                 {% if i.is_add %}
                                 <p id="added" data-idapp="{{i.idapp}}">In Cart<i class="fa fa-check"></i></p>
                                 {% else %}
                                 <a href="#" id="add_to_cart" data-idapp="{{i.idapp}}" data-toggle="modal" data-target="#cart-add">Add to Cart <i class="fa fa-shopping-cart"></i></a>
                                 {% endif %}
+                                <p style="font-size:15px;margin-bottom:4px;text-align:right;">Available : {{i.available_ticket}}</p>
+                                
                             </div>
-                            <p style="width:80%;">{{i.descriptions}}</p>
-                            <div>
-                                <ul class="container-stock-ticket">
-					                <li class="stock-ticket">Sold : {{i.total_sold}}</li>
-					                <li class="stock-ticket">Available : {{i.available_ticket}} </li>
-					                <li class="stock-ticket">Total ticket : {{i.total_ticket}} </li>
-				                </ul>
-                            </div>
+                            <p style="font-size:14px;display:inline;float:left;clear:left;">{{ i.ticket_date|date:"H:m" }} - {{i.sub_location}}</p>
+                            <p style="font-size:15px;margin-bottom:4px;text-align:right;float:right;clear:right;">Rp.{{i.price}}</p>
                         </div>
                     </div>
                 </div>
@@ -81,29 +77,18 @@
 <script>
     $(document).ready(function () {
         function dataTransaction() {
-            //if ($('form#form_transaction').css('display') == 'none') {
-            //    var radio = $('input[name="radio-address"]');
-            //    data = []
-            //    for (var i = 0; i < radio.length; i++) {
-            //        if (radio[i].checked) {
-            //            data.push(radio[i].dataset.idapp)
-            //        }
-            //    };
-            //    return { 'mode': 'exists_transaction', 'trans_id': data[0] }
-            //} else {
-                return {
-                    'mode':'add_address',
-                    'first_name': $('#id_first_name').val(),
-                    'last_name': $('#id_last_name').val(),
-                    'no_telp': $('#id_no_telp').val(),
-                    'quantity': $('#id_quantity').val(),
-                    'code_pos': $('#id_code_pos').val(),
-                    'province': $('#id_province').val(),
-                    'city': $('#id_city').val(),
-                    'address': $('#id_address').val(),
-                    'ticket_idapp': $('#id_ticket_idapp').val()
-                }
-            //}
+            return {
+                'mode':'add_address',
+                'first_name': $('#id_first_name').val(),
+                'last_name': $('#id_last_name').val(),
+                'no_telp': $('#id_no_telp').val(),
+                'quantity': $('#id_quantity').val(),
+                'code_pos': $('#id_code_pos').val(),
+                'province': $('#id_province').val(),
+                'city': $('#id_city').val(),
+                'address': $('#id_address').val(),
+                'ticket_idapp': $('#id_ticket_idapp').val()
+            }
             
         };
 
@@ -125,6 +110,7 @@
                     if ($('#btn_to_cart').length > 0) {
                         $('#btn_to_cart, #btn_continue').remove();
                         $('#cart-add').find('.modal-footer').children().css('display', 'block');
+                        
                     }
                 }
             });
@@ -143,20 +129,19 @@
                 },
                 success: function (data) {
                     if (data['message'] == 'success') {
-                        $('a#add_to_cart[data-idapp="' + data['idapp'] + '"]').remove();
-                        $('div[data-parent="' + $('#id_ticket_idapp').val() + '"]').append('<p id="added">In Cart <i class="fa fa-check"></i></p>')
+                        $('a#add_to_cart[data-idapp="' + data['idapp'] + '"]').replaceWith('<p id="added">In Cart <i class="fa fa-check"></i></p>')
                         $('form#form_transaction').remove();
                         $('div#modal-transaction').html('<h3>Ticket added to your cart <i class="fa fa-check"></i></h3>');
                         $('button#btn_ok_transaction,button#btn_cancel_transaction').css('display', 'none');
-                        $('div#cart-add').find('.modal-footer').append('<button type="button" data-dismiss="modal" class="btn btn-secondary" style="float:left;" id="btn_continue"><i class="fa fa-angle-left"> </i>  Continue shop</button><a href="/cart/list/" class="btn btn-primary" style="float:right;" id="btn_to_cart" style="color:#fff;">Go to Cart  <i class="fa fa-shopping-cart"> </i></a>')
+                        $('div#cart-add').find('.modal-footer').append('<button type="button" data-dismiss="modal" class="btn btn-secondary" style="float:left;" id="btn_continue"><i class="fa fa-angle-left"> </i>  Continue shop</button><a href="/cart/list/" class="btn btn-primary" style="float:right;" id="btn_to_cart" style="color:#fff;">Go to Cart  <i class="fa fa-shopping-cart"> </i></a>');
                     }
                 }
             })
         }
 
-        function send_dataTransaction() {
+        function send_dataTransaction(callback) {
             $.ajax({
-                url: '/transactions/add/',
+                url: '/transactions/info/add/',
                 method: 'POST',
                 beforeSend: function (xhr, settings) {
                     xhr.setRequestHeader("X-CSRFToken", GD.get_csrf())
@@ -164,7 +149,9 @@
                 data: dataTransaction(),
                 success: function (data) {
                     if (data['message'] == 'success') {
-                        return 'success'
+                        if (callback) {
+                            callback();
+                        }
                     }
                 }
             });
@@ -176,6 +163,9 @@
                 if ($('input[name="radio-address"]').css('display') !== 'none') {
                     var data = GD.check_RadioChecked('input[name="radio-address"]');
                     if (!data) {
+                        if ($('#value_not_null').length > 0) {
+                            $('#value_not_null').remove();
+                        }
                         if ($('p#select_address').length == 0) {
                             return $('#modal-transaction').append('<p style="color:red" id="select_address">Please select your address!!</p>')
                         }
@@ -185,12 +175,26 @@
             }
             
             if (form.css('display') == 'none') {
-                //send_dataTransaction();
-                return add_cart();
+                
+                if (!$('input#id_quantity2')[0].checkValidity()) {
+                    $('input#btn_check_valid_qty').click();
+                } else if ($('input#id_quantity2').val() == "0") {
+                    if ($('p#select_address').length > 0) {
+                        $('p#select_address').remove();
+                    }
+                    if ($('#value_not_null').length == 0) {
+                        $('#modal-transaction').append('<p style="color:red" id="value_not_null">Value of ticket quantity cannot be 0 .</p>');
+                    }
+                }
+                else {
+                    return add_cart();
+                }
+                
             } else {
                 if (form[0].checkValidity()) {
-                    send_dataTransaction();
-                    return add_cart();
+
+                    send_dataTransaction(add_cart);
+
                 } else {
                     $('#btn_submit_transaction').click();
                 }

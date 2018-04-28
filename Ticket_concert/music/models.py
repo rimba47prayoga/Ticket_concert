@@ -20,7 +20,7 @@ class Album(models.Model):
     def get_dict(self):
         return {'link_url':self.get_absolute_url(),'nameapp':self.nameapp,
                 'picture':self.picture.name,
-                'descriptions':self.descriptions[:70] + '...'}
+                'descriptions':self.descriptions[:70]}
 
 class Music(models.Model):
     idapp = models.AutoField(primary_key=True)
@@ -60,15 +60,17 @@ class Event(models.Model):
         sub_location = ''
         if ',' in location:
             location = location.split(',')[0]
-            sub_location = self.location.split(',')[1:][0]
+            sub_location = ','.join(self.location.split(',')[1:])
         q_sold = self.ticket_transaction_set.values('quantity')
         total_sold = 0
         for i in q_sold:
             total_sold += i['quantity']
-        data = {'idapp':self.idapp,'music_list':music,'location':location,
+        data = {'idapp':self.idapp,
+                'music_list':music,
+                'location':location,
                 'sub_location':sub_location,
                 'ticket_date':self.ticket_date,
-                'price':self.price,'descriptions':self.descriptions,
+                'price':self.price,
                 'available_ticket':self.total_ticket,
                 'total_sold':total_sold,
                 'total_ticket': self.total_ticket + total_sold,
@@ -80,8 +82,6 @@ class Event(models.Model):
             else:
                 data['is_add'] = False
         return data
-
-    #def get_stock_ticket(self):
 
 
 class UserProfile(models.Model):

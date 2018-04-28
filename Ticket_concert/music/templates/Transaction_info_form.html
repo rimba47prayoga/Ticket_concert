@@ -48,8 +48,11 @@
     </div>
     {% endfor %}
     <div class="form-group col-md-6" style="padding-right:0;display:inline-block;">
-        <label>Quantity</label>
-        <input name="quantity" class="form-control" placeholder="Quantity" style="display:inline-block;" required="" id="id_quantity2" type="number">
+        <form>
+            <label>Quantity</label>
+            <input name="quantity" class="form-control" placeholder="Quantity" style="display:inline-block;" required="" id="id_quantity2" type="number">
+            <input type="submit" style="display:none;" id="btn_check_valid_qty" />
+        </form>
     </div>
 </div>
 <script>

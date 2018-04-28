@@ -75,7 +75,7 @@
                     if (loc.match(/next/) !== null) {
                         var loc1 = loc.match(/next.*/)
                         var result = loc1[0].replace(/next\=/, '')
-                    } else if (loc.test(/signup/)) {
+                    } else if (loc.match(/signup/) !== null) {
                         result = '';
                     } else {
                         result = loc.replace('http:\/\/localhost\:8000', '')
@@ -209,8 +209,12 @@
                     <li>
                         <a href="#dropdown-user-profile" aria-expanded="false" data-toggle="collapse"></a>
                         <ul id="dropdown-user-profile" class="collapse list-unstyled ">
-                            <li><a href="#">Profile</a></li>
-                            <li><a href="#">Page</a></li>
+                            {% if request.user.is_authenticated %}
+                            <li><a href="{% url 'user_profile' request.user.username %}"><i class="fa fa-user-circle"></i> Profile</a></li>
+                            <li><a href="/signout/">Sign out</a></li>
+                            {% else %}
+                            <li><a href="{% url 'signin' %}">Sign in</a></li>
+                            {% endif %}
                         </ul>
                     </li>
                 </ul>
@@ -219,7 +223,7 @@
                 <ul class="list-unstyled">
                     <li {% if url_name == 'home' %} class="active" {% endif %}><a href="{% url 'home' %}" class="red-hover"> <i class="fa fa-home"></i>Home </a></li>
                     <li {% if url_name == 'music_list' %} class="active" {% endif %}><a href="{% url 'music_list' %}" class="red-hover"> <i class="fa fa-music"></i>Music List </a></li>
-                    <li {% if url_name == 'album_list' %} class="active" {% endif %}><a href="{% url 'album_list' %}" class="red-hover"> <i class="fa fa-id-card"></i>Album List </a></li>
+                    <li {% if url_name == 'album_list' %} class="active" {% endif %}><a href="{% url 'album_list' %}" class="red-hover"> <i class="fa fa-image"></i>Album List </a></li>
                     <li {% if url_name == 'event_list' %} class="active" {% endif %}><a href="{% url 'event_list' %}" class="red-hover"> <i class="fa fa-ticket"></i>Event List </a></li>
                     <li>
                         <a href="#exampledropdownDropdown" aria-expanded="false" data-toggle="collapse" class="red-hover"> <i class="icon-interface-windows"></i>Other menus </a>

@@ -67,10 +67,14 @@ class CheckTokenMiddleware(MiddlewareMixin):
         if username == None:
             username = request.user.username
         user_id = User.objects.get(username=username)
-        if request.POST.get('this_method_for_unit_test_only') == 'Icxj2TdNhfbwW5t0aR1h6l0BUDob90':
-            AccessToken.objects.create(user=user_id,token=generate_token(),
-                                                        expires=datetime.now() + timedelta(hours=1),
-                                                        scope='read write')
+
+        # Cuma buat unit test saja .. jadi bikin accessToken tidak perlu pakai Application
+        is_unit_test = request.POST.get('this_method_for_unit_test_only')
+        if is_unit_test is not None:
+            if is_unit_test == 'Icxj2TdNhfbwW5t0aR1h6l0BUDob90':
+                AccessToken.objects.create(user=user_id,token=generate_token(),
+                                           expires=datetime.now() + timedelta(hours=1),
+                                           scope='read write')
         else:
             AccessToken.objects.create(user=user_id,token=generate_token(),
                                                         application=Application.objects.get(user=1),

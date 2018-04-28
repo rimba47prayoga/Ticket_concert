@@ -73,7 +73,13 @@
                                 <p>{{i.descriptions}}</p>
 
                             </td>
-                            <td><p id="quantity">{{i.quantity}}</p><input type="number" class="form-control" value="{{i.quantity}}" style="width:100px;display:none;" id="quantity_input" data-value="{{i.quantity}}" /></td>
+                            <td>
+                                <p id="quantity">{{i.quantity}}</p>
+                                <form onsubmit="return false">
+                                    <input type="number" class="form-control" value="{{i.quantity}}" style="width:100px;display:none;" id="quantity_input" data-value="{{i.quantity}}" required="" min="1" />
+                                    <input type="submit" id="check_valid_quantity" style="display:none;" />
+                                </form>
+                            </td>
                             <td><p id="price">{{i.price}}</p></td>
                             <td><p id="total_price">{{i.total_price}}</p></td>
                         </tr>
@@ -90,7 +96,7 @@
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#checkout-list" id="checkout">Checkout</button>
     </div>
     <div class="card" style="display:inline-block;float:left;">
-        <button type="button" class="btn btn-secondary">Continue shopping</button>
+        <a href="/event/list/" type="button" class="btn btn-secondary">Continue shopping</a>
     </div>
     {% else %}
     <div class="container">
@@ -114,11 +120,11 @@
                 }
             }
             return {
-                'idapp_cart':String(idapp_cart),
+                'idapp_cart': String(idapp_cart),
                 'idapp_ticket': String(idapp_ticket),
                 'quantity': String(quantity)
             }
-        }
+        };
         function getRadioValue(selector) {
             var radio = document.querySelectorAll(selector);
             var idapp = [];
@@ -128,8 +134,13 @@
                 }
             };
             return {
-                'idapp':String(idapp)
+                'idapp': String(idapp)
             }
+        };
+        function cart_is_null() {
+            $('button#checkout').parent().next().remove();
+            $('button#checkout').parent().remove();
+            $('div.container').html('<i class="fa fa-shopping-cart" style="font-size:150px"></i><h1>There\'s No Ticket in your Cart</h1>');
         }
 
         $('a#edit_cart').click(function (event) {
@@ -160,10 +171,27 @@
                     if (data['message'] == 'success') {
                         container_ticket.fadeOut();
                         container_ticket.remove();
+                        if ($('#container-ticket').length == 0) {
+                            cart_is_null();
+                        }
                     }
                     
                 }
             });
+        });
+
+        $('input#quantity_input').on('keydown', function (event) {
+            if (event.keyCode == 13) {
+                if (this.checkValidity()) {
+                    if (this.value != this.dataset.value) {
+                        $('button#btn_ok_edit').click();
+                    } else {
+                        $('button#btn_cancel_edit').click();
+                    }
+                } else {
+                    $('input#check_valid_quantity').click();
+                }
+            }
         });
 
         $('button#btn_ok_edit').click(function () {
@@ -291,9 +319,9 @@
                                 el += '<button type="button" data-dismiss="modal" class="btn btn-primary" style="float:right;" id="btn_buy_other">Buy Other</button>'
                             } else {
                                 $('div#checkout-list, div.modal-backdrop').remove();
-                                $('button#checkout').parent().next().remove();
-                                $('button#checkout').parent().remove();
-                                $('div.container').html('<i class="fa fa-shopping-cart" style="font-size:150px"></i><h1>There\'s No Ticket in your Cart</h1>')
+                                $('body').removeAttr('class');
+                                $('body').removeAttr('style');
+                                cart_is_null();
                             }
                             dialog_confirm.next().append(el);
 
