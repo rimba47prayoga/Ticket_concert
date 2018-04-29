@@ -180,7 +180,7 @@ $(document).ready(function () {
             },
 
             clear_content_elem : function() {
-                $('div#GreenDay_slide, div#albums-container,section.projects').remove()
+                $('div#GreenDay_slide, div#albums-container,section.projects,div#greenday-descriptions').remove()
             },
 
             handler_album_click : function() {

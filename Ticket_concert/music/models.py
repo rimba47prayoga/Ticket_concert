@@ -1,7 +1,7 @@
 from django.db import models
 # Create your models here.
 from django.urls import reverse
-from datetime import date
+from datetime import date, datetime, timedelta
 from .data_layer.Music_BR import Music_BR_Manager
 class Album(models.Model):
     idapp = models.AutoField(primary_key=True)
@@ -66,7 +66,7 @@ class Event(models.Model):
         for i in q_sold:
             total_sold += i['quantity']
         data = {'idapp':self.idapp,
-                'music_list':music,
+                #'music_list':music,
                 'location':location,
                 'sub_location':sub_location,
                 'ticket_date':self.ticket_date,
@@ -74,7 +74,11 @@ class Event(models.Model):
                 'available_ticket':self.total_ticket,
                 'total_sold':total_sold,
                 'total_ticket': self.total_ticket + total_sold,
-                'link_url':self.get_absolute_url()}
+                'link_url':self.get_absolute_url(),
+                'is_expired':self.is_expired(),
+                'date':self.ticket_date.day,
+                'month':self.ticket_date.strftime('%B'),
+                'hour':str(self.ticket_date.hour)+':'+str(self.ticket_date.minute)}
         if user is not None:
             is_add = self.cart_set.filter(user=user).exists()
             if is_add:
@@ -82,6 +86,10 @@ class Event(models.Model):
             else:
                 data['is_add'] = False
         return data
+
+    def is_expired(self):
+        now = datetime.now()
+        return now > (self.ticket_date + timedelta(days=1))
 
 
 class UserProfile(models.Model):

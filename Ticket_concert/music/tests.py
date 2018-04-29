@@ -119,5 +119,3 @@ class GreenDayTest(TestCase):
                                                            city='Cimahi',address='unknown')
         response = self.client.get('/checkout/confirm/')
         self.assertEqual(transaction_info.idapp,response.context['address'][0]['idapp'])
-
-    #def test_stock_ticket_after_buy_is_decreased(self):

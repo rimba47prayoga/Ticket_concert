@@ -1,4 +1,9 @@
 ﻿{% extends 'layout.html' %}
+{% block search_by %}
+<a href="#" class="dropdown-item" id="dropdown_search_by" data-column="location">Location</a>
+<a href="#" class="dropdown-item" id="dropdown_search_by" data-column="price">Price</a>
+<a href="#" class="dropdown-item" id="dropdown_search_by" data-column="ticket_date">Ticket Date</a>
+{% endblock %}
 {% block sitemap %} > Event > list
 {% endblock %}
 {% block content %}
@@ -22,13 +27,13 @@
     }
     
 </style>
-    <div class="container" style="margin-top: 20px;">
+    <div class="container" style="margin-top: 20px;" id="container-ticket">
         {% for i in event %}
-        <div class="recent-activities card">
+        <div class="recent-activities card" style="margin-bottom:20px;">
             <div class="card-body no-padding">
                 <div class="item">
                     <div class="row">
-                        <div class="col-2 date-holder text-right">
+                        <div class="col-md-2 date-holder text-right">
                             <time datetime="2014-07-20 2000">
 				                <span class="day">{{ i.ticket_date|date:"d" }}</span>
 				                <span class="month">{{ i.ticket_date|date:"N" }}</span>
@@ -36,8 +41,13 @@
 				                <span class="time">8:00 PM</span>
 			                </time>
                         </div>
-                        <div class="col-10 content">
+                        <div class="col-md-10 content">
                             <h5 style="display:inline-block;float:left;">Green Day in {{i.location}}</h5>
+                            {% if i.is_expired %}
+                            <div style="float:right;margin-top:20px;">
+                                <p style="font-size:20px;">Expired</p>
+                            </div>
+                            {% else %}
                             <div style="float:right" data-parent="{{i.idapp}}">
                                 {% if i.is_add %}
                                 <p id="added" data-idapp="{{i.idapp}}">In Cart<i class="fa fa-check"></i></p>
@@ -45,16 +55,55 @@
                                 <a href="#" id="add_to_cart" data-idapp="{{i.idapp}}" data-toggle="modal" data-target="#cart-add">Add to Cart <i class="fa fa-shopping-cart"></i></a>
                                 {% endif %}
                                 <p style="font-size:15px;margin-bottom:4px;text-align:right;">Available : {{i.available_ticket}}</p>
-                                
                             </div>
+                            {% endif %}
                             <p style="font-size:14px;display:inline;float:left;clear:left;">{{ i.ticket_date|date:"H:m" }} - {{i.sub_location}}</p>
+                            {% if not i.is_expired %}
                             <p style="font-size:15px;margin-bottom:4px;text-align:right;float:right;clear:right;">Rp.{{i.price}}</p>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         {% endfor %}
+    </div>
+    <div class="container" style="margin: 80px 0 200px;" id="paginations">
+        <nav aria-label="..." style="margin-top: 30px;">
+            <ul class="pagination" style="margin: 0;position: absolute;left: 50%;transform: translate(-50%, -50%);">
+                {% if event.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ event.previous_page_number }}">Previous</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Previous</span>
+                </li>
+                {% endif %}
+                {% for i in event.paginator.page_range %}
+                {% if event.number == i %}
+                <li class="page-item active">
+                    <span class="page-link">
+                        {{ i }}
+                        <span class="sr-only">(current)</span>
+                    </span>
+                </li>
+                {% else %}
+                <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                {% endif %}
+                {% endfor %}
+
+                {% if event.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ event.next_page_number }}">Next</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Next</span>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
     </div>
     <div id="cart-add" tabindex="-1" role="dialog" aria-labelledby="cart-add" aria-hidden="true" class="modal fade text-left">
         <div role="document" class="modal-dialog">
@@ -78,7 +127,7 @@
     $(document).ready(function () {
         function dataTransaction() {
             return {
-                'mode':'add_address',
+                'mode': 'add_address',
                 'first_name': $('#id_first_name').val(),
                 'last_name': $('#id_last_name').val(),
                 'no_telp': $('#id_no_telp').val(),
@@ -88,11 +137,10 @@
                 'city': $('#id_city').val(),
                 'address': $('#id_address').val(),
                 'ticket_idapp': $('#id_ticket_idapp').val()
-            }
+            };
             
         };
-
-        $('a#add_to_cart').click(function (event) {
+         $(document.body).on('click', 'a#add_to_cart' ,function(event) {
             event.preventDefault();
             $.ajax({
                 url: '/transactions/info/',
@@ -110,8 +158,8 @@
                     if ($('#btn_to_cart').length > 0) {
                         $('#btn_to_cart, #btn_continue').remove();
                         $('#cart-add').find('.modal-footer').children().css('display', 'block');
-                        
-                    }
+
+                    };
                 }
             });
         });
@@ -131,13 +179,13 @@
                     if (data['message'] == 'success') {
                         $('a#add_to_cart[data-idapp="' + data['idapp'] + '"]').replaceWith('<p id="added">In Cart <i class="fa fa-check"></i></p>')
                         $('form#form_transaction').remove();
-                        $('div#modal-transaction').html('<h3>Ticket added to your cart <i class="fa fa-check"></i></h3>');
+                        $('div#modal-transaction').html('<h3>Ticket added to your cart <i class="fa fa-check"> </i></h3>');
                         $('button#btn_ok_transaction,button#btn_cancel_transaction').css('display', 'none');
                         $('div#cart-add').find('.modal-footer').append('<button type="button" data-dismiss="modal" class="btn btn-secondary" style="float:left;" id="btn_continue"><i class="fa fa-angle-left"> </i>  Continue shop</button><a href="/cart/list/" class="btn btn-primary" style="float:right;" id="btn_to_cart" style="color:#fff;">Go to Cart  <i class="fa fa-shopping-cart"> </i></a>');
-                    }
+                    };
                 }
-            })
-        }
+            });
+        };
 
         function send_dataTransaction(callback) {
             $.ajax({
@@ -151,11 +199,11 @@
                     if (data['message'] == 'success') {
                         if (callback) {
                             callback();
-                        }
-                    }
+                        };
+                    };
                 }
             });
-        }
+        };
 
         $('button#btn_ok_transaction').click(function () {
             var form = $('form#form_transaction');
@@ -165,40 +213,40 @@
                     if (!data) {
                         if ($('#value_not_null').length > 0) {
                             $('#value_not_null').remove();
-                        }
+                        };
                         if ($('p#select_address').length == 0) {
-                            return $('#modal-transaction').append('<p style="color:red" id="select_address">Please select your address!!</p>')
-                        }
-                    }
-                }
-                
-            }
-            
+                            $('#modal-transaction').append('<p style="color:red" id="select_address">Please select your address!!</p>');
+                            return false;
+                        };
+                        return false;
+                    };
+                };
+            };
             if (form.css('display') == 'none') {
-                
+
                 if (!$('input#id_quantity2')[0].checkValidity()) {
                     $('input#btn_check_valid_qty').click();
                 } else if ($('input#id_quantity2').val() == "0") {
                     if ($('p#select_address').length > 0) {
                         $('p#select_address').remove();
-                    }
-                    if ($('#value_not_null').length == 0) {
-                        $('#modal-transaction').append('<p style="color:red" id="value_not_null">Value of ticket quantity cannot be 0 .</p>');
-                    }
+                    };
+                    if ($('#value_not_null').length <= 0) {
+                        $('#modal-transaction').append('<p style="color:red" id="value_not_null">Value of ticket quantity cannot be <= 0 .</p>');
+                    };
                 }
                 else {
                     return add_cart();
-                }
-                
+                };
+
             } else {
                 if (form[0].checkValidity()) {
-
+                    //callback add cart if info transaction(address) success
                     send_dataTransaction(add_cart);
 
                 } else {
                     $('#btn_submit_transaction').click();
-                }
-            }
+                };
+            };
             
         });
         
@@ -216,4 +264,63 @@
     
 </script>
 {% endif %}
+<script>
+    $(document).ready(function () {
+        function create_ticketElem(data) {
+            var elm = '<div class="recent-activities card" style="margin-bottom:20px;display:none;"><div class="card-body no-padding"><div class="item"><div class="row">'
+            elm += '<div class="col-md-2 date-holder text-right"><time datetime="2014-07-20 2000"><span class="day"> '+ data['date'] +' </span><span class="month"> '+ data['month'] +' </span>'
+            elm += '<span class="year"> i.ticket_date|date:"Y" </span><span class="time">8:00 PM</span></time></div><div class="col-md-10 content"><h5 style="display:inline-block;float:left;">Green Day in '+data['location']+'</h5>'
+            if (data['is_expired'] == 'True') {
+                elm += '<div style="float:right;margin-top:20px;"><p style="font-size:20px;">Expired</p></div>'
+            } else {
+                elm += '<div style="float:right" data-parent="'+data['idapp']+'">';
+                if(data['is_add'] == 'True'){
+                    elm += '<p id="added" data-idapp="' + data['idapp'] + '">In Cart<i class="fa fa-check"></i></p>'
+                }else{
+                    elm += '<a href="#" id="add_to_cart" data-idapp="' + data['idapp'] + '" data-toggle="modal" data-target="#cart-add">Add to Cart <i class="fa fa-shopping-cart"></i></a>'
+                }
+                elm += '<p style="font-size:15px;margin-bottom:4px;text-align:right;">Available : '+ data['available_ticket'] +'</p></div><p style="font-size:14px;display:inline;float:left;clear:left;">'+data['hour']+' - '+ data['sub_location'] +'</p>'
+                elm += '<p style="font-size:15px;margin-bottom:4px;text-align:right;float:right;clear:right;">Rp.'+ data['price'] +'</p>'
+            }
+            elm += '</div></div></div></div></div>';
+            $(elm).appendTo($('#container-ticket'))
+            return $('.recent-activities.card').fadeIn('slow');
+        }
+
+
+        function search_by(value, column) {
+            $.ajax({
+                url: '/json/ticket/',
+                data: {
+                    'column': column,
+                    'value': value
+                },
+                beforeSend: function (xhr) {
+                    $('#container-ticket').children().remove();
+                    $('body').append('<div class="dropSheet" style="height:' + $('body')[0].offsetHeight + 'px"></div>');
+                    $('div.dropSheet').append('<i style="position: absolute;z-index: 1000000;color: white;top: 4em;left: 9em;" class="fa fa-circle-o-notch fa-pulse fa-4x fa-fw"></i>');
+                },
+                success: function (data) {
+                    $('div.dropSheet').remove();
+                    if (data.length <= 5) {
+                        $('div#paginations').remove();
+                    }
+                    for (var i = 0; i < data.length; i++) {
+                        create_ticketElem(data[i]);
+                    }
+                }
+            })
+        };
+        
+        $('input#input_search_by').on('keydown', function (event) {
+            if (event.originalEvent.keyCode == 13) {
+                var column = $('button#filter_by')[0].dataset.column
+                if (column == 'filter_by') {
+                    column = 'location'
+                };
+                search_by(this.value,column)
+            }
+        });
+    });
+</script>
 {% endblock %}

@@ -1,5 +1,7 @@
 from django.shortcuts import render
-from music.models import Event, Music, Album, Cart,Ticket_transaction, Transaction_info
+from music.models import (Event, Music, Album, Cart,
+                          Ticket_transaction, Transaction_info,
+                          UserProfile)
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 from .data_layer.common import decorators
@@ -27,7 +29,10 @@ def Home(request):
 
 @decorators.ajax_required
 def get_json_event(request):
-    event_all = Event.objects.all()
+    value = request.GET['value']
+    column = request.GET['column']
+    column = column + '__icontains'
+    event_all = Event.objects.filter(**{column:value})
     data = []
     for i in event_all:
         data.append(i.get_dict_event())
@@ -81,12 +86,15 @@ def Event_view(request,pk):
 
 def Event_list(request):
     event_all = Event.objects.all()
-    event = []
+    event_data = []
     user = None
     if request.user.is_authenticated:
         user = request.user.id
     for i in event_all:
-        event.append(i.get_dict_event(user))
+        event_data.append(i.get_dict_event(user))
+    paginator = Paginator(event_data, 5)
+    page = request.GET.get('page')
+    event = paginator.get_page(page)
     return render(request,'Event_list.html',{'event':event})
 
 
@@ -172,20 +180,46 @@ def GD_get_user_profile(request,username):
     if request.user.is_authenticated:
         user_logged_on = request.user.username
         user = User.objects.filter(username=username)
+        address = []
+        no_telp = []
         if user.exists():
+            user_info_all = user[0].transaction_info_set.values('no_telp','province','code_pos','city','address')
+            j = 0
+            for i in user_info_all:
+                j +=1
+                no_telp.append({'no_telp':i['no_telp']})
+                address.append({'province':i['province'],
+                                'city':i['city'],
+                                'code_pos':i['code_pos'],
+                                'address':i['address'],
+                                'label_address':'Address ' + str(j)})
             user = user.values('first_name','last_name','username','email')
-        else:
-            return HttpResponse('<h1>404 Not Found</h1>',status=404)
         if user_logged_on != user[0]['username']:
             return HttpResponseForbidden('<h1>403 Forbidden</h1>')
         else:
-            return render(request,'User_Profile.html',{'user':user})
+            return render(request,'User_Profile.html',{'user':user,'no_telp':no_telp,'address':address})
     else:
         return HttpResponseForbidden('<h1>403 Forbidden</h1>')
 
 def GD_Change_User_Picture(request):
-    print(request.FILES)
-    return HttpResponse(request)
+    if request.user.is_authenticated:
+        user_id = request.user.id
+        picture = request.FILES.get('image')
+        if picture is not None:
+            user = User.objects.get(id=user_id)
+            if hasattr(user,'userprofile'):
+                user_profile = UserProfile.objects.get(user=user)
+                user_profile.picture = picture
+                user_profile.save()
+            else:
+                user_profile = UserProfile.objects.create(user=user,
+                                                      picture=picture)
+            return HttpResponse(json.dumps({'message':'success','picture':user_profile.picture.name}),
+                                content_type='application/json')
+        else:
+            return HttpResponse(status=400)
+
+    
 
 def GD_signout(request): # logs out the logged in users
     if not request.user.is_authenticated:

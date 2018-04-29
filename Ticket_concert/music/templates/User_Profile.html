@@ -13,20 +13,18 @@ form .line {
 }
 </style>
 {% for i in user %}
-<div class="container">
+<div class="container" style="margin-top:20px;">
     <div class="card">
-        <div class="card-close">
-            <div class="dropdown">
-                <button type="button" id="closeCard5" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle"><i class="fa fa-ellipsis-v"></i></button>
-                <div aria-labelledby="closeCard5" class="dropdown-menu dropdown-menu-right has-shadow"><a href="#" class="dropdown-item remove"> <i class="fa fa-times"></i>Close</a><a href="#" class="dropdown-item edit"> <i class="fa fa-gear"></i>Edit</a></div>
-            </div>
-        </div>
-        <div class="card-header d-flex align-items-center">
-            <h3 class="h4">All form elements</h3>
+        <div class="card-header d-flex align-items-center" style="box-shadow:none;">
+            <h3 class="h4">Profile</h3>
         </div>
         <div class="card-body">
             <div class="col-md-2" style="float:left">
-                <img src="{% static 'img/User_image/User-Default.jpg' %}" alt="..." class="img-fluid rounded-circle">
+                {% if request.user.userprofile %}
+                <div id="div_user_pict" class="profile-circle medium" style="background-image:url({% static 'img/' %}{{request.user.userprofile.picture}});height:135px;width:135px;"></div>
+                {% else %}
+                <img id="img_user_pict" src="{% static 'img/User_image/User-Default.jpg' %}" alt="..." class="img-fluid rounded-circle">
+                {% endif %}
                 <a href="#" id="change_picture" style="width:100%;text-align:center;margin-top:25px;">Change Picture</a>
                 <form id="form_change_picture" enctype="multipart/form-data">
                     <input type="file" id="input_change_picture" style="display:none;" />
@@ -62,7 +60,7 @@ form .line {
                 </div>
                 <div class="line"></div>
                 <div class="form-group row">
-                    <label class="col-sm-3 form-control-label">Gender</label>
+                    <label class="col-sm-3 form-control-label" style="font-size:inherit;font-weight:bold">Gender</label>
                     <div class="col-sm-8">
                         <div>
                             <input id="optionsRadios1" checked="" value="option1" name="optionsRadios" type="radio">
@@ -74,11 +72,50 @@ form .line {
                         </div>
                     </div>
                 </div>
+                {% if no_telp %}
+                <div class="line"></div>
+                <div class="form-group row">
+                    <label class="col-sm-3 form-control-label" style="font-size:inherit;font-weight:bold">No Telp</label>
+                    <div class="col-sm-8">
+                    {% for j in no_telp %}
+                        <div class="form-group">
+                            <input disabled="" class="form-control" type="text" value="{{j.no_telp}}">
+                        </div>
+                    {% endfor %}
+                    </div>
+                </div>
+                <div class="line"></div>
+                
+                <div class="form-group row">
+                    {% for j in address %}
+                    <label class="col-sm-3 form-control-label" style="font-size:inherit;font-weight:bold">{{j.label_address}}</label>
+                    <div class="col-sm-8">
+                        
+                        <div class="row" style="margin-bottom:20px;">
+                            <div class="col-sm-4">
+                                <input disabled="" class="form-control" type="text" value="{{j.province}}">
+                            </div>
+                            <div class="col-sm-4">
+                                <input disabled="" class="form-control" type="text" value="{{j.city}}">
+                            </div>
+                            <div class="col-sm-4">
+                                <input disabled="" class="form-control" type="text" value="{{j.code_pos}}">
+                            </div>
+                        </div>
+                        <div class="row" style="margin-bottom:20px;">
+                            <div class="col-sm-12">
+                                <textarea disabled="" class="form-control">{{j.address}}</textarea>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
                 <div class="form-group row">
                     <div class="col-sm-11">
-                        <button type="submit" class="btn btn-primary" style="float:right">Save changes</button>
-                        <button type="submit" class="btn btn-secondary" style="float:right;margin-right: 20px;">Cancel</button>
-                        
+                        <button type="button" class="btn btn-primary" style="float:right">Save changes</button>
+                        <button type="button" class="btn btn-secondary" style="float:right;margin-right: 20px;">Cancel</button>
                     </div>
                 </div>
             </form>
@@ -126,12 +163,12 @@ form .line {
                     contentType: false,
                     processData: false,
                     success: function (data) {
-                        console.log("success");
-                        console.log(data);
-                    },
-                    error: function (data) {
-                        console.log("error");
-                        console.log(data);
+                        if (data['message'] == 'success') {
+                            if ($('div#div_user_pict').length > 0) {
+                                $('div#div_user_pict').css('background-image', 'url(/static/img/' + data['picture'] + ')')
+                                $('div.avatar').find('.profile-circle').css('background-image', 'url(/static/img/' + data['picture'] + ')')
+                            }
+                        }
                     }
                 });
             }
